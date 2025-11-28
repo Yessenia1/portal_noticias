@@ -1,0 +1,4848 @@
+<!DOCTYPE html>
+
+<html lang="es" class="light">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NewsPortal AI - Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+
+        tailwind.config = {
+
+            darkMode: 'class',
+
+            theme: {
+
+                extend: {
+
+                    fontFamily: { sans: ['Inter'] },
+
+                    colors: {
+
+                        'primary-blue': '#4f46e5',
+
+                        'secondary-gray': '#f3f4f6',
+
+                        brand: { 500: '#2563EB', 900: '#1E3A8A' },
+
+                        neon: { 400: '#22D3EE' },
+
+                        yape: '#742284',
+
+                        plin: '#00C9E0'
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+    <style>
+        .modal-backdrop {
+
+            background-color: rgba(0, 0, 0, 0.6);
+
+            backdrop-filter: blur(4px);
+
+        }
+
+
+
+        .loader {
+
+            border: 4px solid #f3f3f3;
+
+            border-radius: 50%;
+
+            border-top: 4px solid #3498db;
+
+            width: 30px;
+
+            height: 30px;
+
+            animation: spin 1s linear infinite;
+
+        }
+
+
+
+        @keyframes spin {
+
+            0% {
+
+                transform: rotate(0deg);
+
+            }
+
+
+
+            100% {
+
+                transform: rotate(360deg);
+
+            }
+
+        }
+
+
+
+        body.plan-free .only-premium {
+
+            display: none !important;
+
+        }
+
+
+
+        body.plan-premium .only-free {
+
+            display: none !important;
+
+        }
+
+
+
+        .favorites-btn-active {
+
+            background-color: #fee2e2 !important;
+
+            border-color: #ef4444 !important;
+
+        }
+
+
+
+        .dark .favorites-btn-active {
+
+            background-color: rgba(220, 38, 38, 0.2) !important;
+
+            border-color: #ef4444 !important;
+
+        }
+    </style>
+
+    </style>
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3085131443806336"
+        crossorigin="anonymous"></script>
+</head>
+
+
+
+<body class="plan-free bg-secondary-gray dark:bg-gray-900 min-h-screen transition-colors duration-300">
+
+
+
+    <div class="flex">
+
+        <aside class="w-20 fixed h-screen bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-6 z-50">
+
+
+
+            <div class="mb-10">
+
+                <div class="w-12 h-12 bg-primary-blue rounded-full flex items-center justify-center text-white font-bold text-xl cursor-pointer"
+                    onclick="window.location.hash = '#home'">
+
+                    N
+
+                </div>
+
+            </div>
+
+
+
+            <nav class="space-y-6 flex-grow">
+
+
+
+                <a href="#home" title="Inicio"
+                    class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-300 hover:text-primary-blue transition duration-200"
+                    id="nav-home">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2l-7-7m7 7v10a1 1 0 01-1 1h-3">
+
+                        </path>
+
+                    </svg>
+
+                    <span
+                        class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+
+                        Inicio
+
+                    </span>
+
+                </a>
+
+
+
+                <a href="#dashboard" title="Dashboard"
+                    class="only-admin hidden group relative p-3 rounded-xl text-gray-600 dark:text-gray-400 hover:text-primary-blue transition duration-200"
+                    id="nav-dashboard-admin">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 12l3-3 3 3 7-7M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2z">
+
+                        </path>
+
+                    </svg>
+
+                    <span
+                        class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+
+                        Dashboard Admin
+
+                    </span>
+
+                </a>
+
+
+
+                <a href="#favorites" title="Mis Favoritos"
+                    class="only-premium group relative p-3 rounded-xl text-gray-600 dark:text-gray-400 hover:text-primary-blue transition duration-200"
+                    id="nav-favorites">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+
+                        </path>
+
+                    </svg>
+
+                    <span
+                        class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+
+                        Mis Favoritos
+
+                    </span>
+
+                </a>
+
+
+
+                <a href="#configuracion" title="Configuración"
+                    class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-400  transition duration-200"
+                    id="nav-configuracion">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z">
+
+                        </path>
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+
+                    </svg>
+
+                    <span
+                        class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+
+                        Configuración
+
+                    </span>
+
+                </a>
+
+
+
+            </nav>
+
+
+
+            <div class="my-6 border-t border-gray-200 dark:border-gray-700 w-1/2"></div>
+
+
+
+            <button id="dark-mode-toggle" title="Modo Oscuro/Claro"
+                class="p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+
+                ☀️
+
+            </button>
+
+        </aside>
+
+
+
+        <!-- MAIN CONTENT -->
+
+        <div class="flex-1 ml-20">
+
+            <!-- HEADER -->
+
+            <header class="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-sm">
+
+                <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+                    <div>
+
+                        <h1 id="saludo" class="text-xl font-semibold text-gray-900 dark:text-gray-100">¡Bienvenido!</h1>
+
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Explora las noticias más recientes</p>
+
+                    </div>
+
+
+
+                    <div class="flex items-center space-x-4">
+
+                        <div class="relative">
+
+                            <input type="text" placeholder="Buscar artículos..." id="search-input"
+                                class="p-2 pl-10 border border-gray-300 dark:border-gray-700 rounded-lg bg-secondary-gray dark:bg-gray-700 focus:ring-primary-blue focus:border-primary-blue w-64 shadow-inner text-sm">
+
+                            <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+
+                            </svg>
+
+                        </div>
+
+
+
+                        <!-- Botón de Favoritos -->
+
+                        <button id="favorites-btn-header" onclick="toggleFavoritesView()" title="Mis Favoritos"
+                            class="only-premium relative p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 shadow-md group">
+
+                            <svg id="favorites-icon-header"
+                                class="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-red-500 transition-colors"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+
+                                </path>
+
+                            </svg>
+
+                            <span id="favorites-count"
+                                class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+
+                        </button>
+
+                        <!-- Botón de Scraping Manual -->
+                        <button onclick="openScrapingModal()" title="Actualizar Noticias"
+                            class="only-premium relative p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 shadow-md group">
+                            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-blue-500 transition-colors"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                        </button>
+
+                        <button onclick="openPricingModal()"
+                            class="only-free bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-lg font-medium hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 shadow-md text-sm">
+
+                            Premium
+
+                        </button>
+
+
+
+                        <div
+                            class="only-premium px-3 py-1 bg-gray-800 text-neon-400 text-xs font-bold rounded-full border border-gray-700 shadow-lg">
+
+                            PLAN PRO
+
+                        </div>
+
+
+
+                        <div id="auth-actions" class="relative">
+
+                            <button id="login-btn-nav"
+                                class="text-sm font-bold text-primary-blue hover:underline">Ingresar</button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div
+                    class="p-4 bg-white dark:bg-gray-800 shadow-2xl rounded-3xl max-w-6xl mx-auto mb-6 border border-gray-100 dark:border-gray-700">
+
+
+
+
+
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 items-end">
+
+
+
+                        <div class="space-y-1 col-span-1">
+
+                            <label for="filter-fecha-inicio"
+                                class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+
+                                Desde
+
+                            </label>
+
+                            <input type="date" id="filter-fecha-inicio"
+                                class="w-full h-10 px-2 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-xs focus:ring-primary-blue focus:border-primary-blue"
+                                value="2025-09-11">
+
+                        </div>
+
+
+
+                        <div class="space-y-1 col-span-1">
+
+                            <label for="filter-fecha-fin"
+                                class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+
+                                Hasta
+
+                            </label>
+
+                            <input type="date" id="filter-fecha-fin"
+                                class="w-full h-10 px-2 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-xs focus:ring-primary-blue focus:border-primary-blue"
+                                value="2025-11-25">
+
+                        </div>
+
+
+
+                        <div class="col-span-2 md:col-span-1">
+
+                            <label for="filter-pais"
+                                class="text-xs font-semibold text-gray-500 dark:text-gray-400 block mb-1">País</label>
+
+                            <select id="filter-pais"
+                                class="w-full h-10 px-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-sm focus:ring-primary-blue focus:border-primary-blue">
+
+                                <option value="">Todos</option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <div class="col-span-2 md:col-span-1">
+
+                            <label for="filter-portal"
+                                class="text-xs font-semibold text-gray-500 dark:text-gray-400 block mb-1">Fuente</label>
+
+                            <select id="filter-portal"
+                                class="w-full h-10 px-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-sm focus:ring-primary-blue focus:border-primary-blue">
+
+                                <option value="">Todas</option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <button id="apply-filters-btn"
+                            class="h-10 col-span-2 md:col-span-1 bg-primary-blue hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition shadow-md">
+
+                            Filtrar
+
+                        </button>
+
+
+
+                        <button id="reset-filters-btn"
+                            class="h-10 col-span-2 md:col-span-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-white rounded-xl text-sm font-medium transition shadow-md">
+
+                            Limpiar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+
+            <!-- CONTENT -->
+
+            <div class="max-w-7xl mx-auto px-6 py-8" id="main-content">
+
+                <script>
+                    const banners = [
+                        {
+                            img: "https://static.semrush.com/blog/uploads/media/41/09/41099fd365a694424cebf003f3ec1455/432db5cc6c79a69e8bb8c0cbe0d8b258/842eDwAWuRVB_-GKyI-TcGO6XYSz_kLSZxbGnDZQS2AX7VjlR3YrKV0iMBZneKomfTvHb1aXGcZZV2p64hDEy8Rhi15lXuoidkAATosDCYw7rPKNoFxWcLM34W9IOwhpbUpxPqRuyZYRSGENnDs5Kq8.webp",
+                            link: "https://www.paypal.com/pe/home"
+                        },
+                        {
+                            img: "https://static.semrush.com/blog/uploads/media/af/bf/afbf34aa6bed2a93dc280ccf1f94717b/827a6ab387344c7b64cbccc8093f9c57/EfkhGVM39wg5kbkQ9fjs8hzs5LuKnBKPlPPvE6r3VX3er-gGMBfmrGFHHaZ4tRXtEMNkdV343Borc6qrbgoQBOYaZg4i3aH2qRsKn80LANtQO0c7TpZgow4Fg3lDvoYEpJknnrNT9c_ePA3ZjogaxXw.webp",
+                            link: "https://www.linkedin.com/feed/"
+                        },
+                        {
+                            img: "https://static.semrush.com/blog/uploads/media/ac/a1/aca158f8cd76f459244d90334751b29a/2c651a1a28a868a4f3fc404a7c986fa0/btW6eq9jLu2V1eU8y7J7MpnpfXE_gXwMvQFZL2K_Tc-EdjDdjSKex13bhAgNrWdXbquswqZhFlJ_G9iyom9GEMJirwWKRBjgU1SQCKAjKboVcdXdLDlbCfiQ7JrYR2o541KAkq7b5G272fl63ZAD6N4.webp",
+                            link: "https://www.adobe.com/pe/creativecloud/plans.html?sdid=6S3T6XMG&mv=search&mv2=paidsearch&ef_id=Cj0KCQiAxJXJBhD_ARIsAH_JGjjLusocqJmaj8sZmi5GX-JgBR-f6nHfF8NhhEGxXRyZJ0BTWGQ0qvwaAnetEALw_wcB:G:s&s_kwcid=AL!3085!3!720017585953!e!!g!!adobe!21882249001!168664324743&gad_campaignid=21882249001"
+                        },
+                    ];
+
+                    const randomAd = banners[Math.floor(Math.random() * banners.length)];
+
+                    document.write(`
+    <div class="only-free my-4">
+      <a href="${randomAd.link}" target="_blank" rel="noopener noreferrer">
+        <img src="${randomAd.img}" class="w-full h-25 rounded-lg border shadow" />
+      </a>
+    </div>
+  `);
+                </script>
+
+
+                <!-- WIDGET DE CLIMA PREMIUM -->
+
+                <section class="only-premium mb-8">
+
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center gap-2">
+
+                        <span class="w-2 h-8 bg-blue-400 rounded-full"></span>
+
+                        Clima en Tiempo Real
+
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                        <!-- Widget Principal de Clima -->
+                        <div
+                            class="bg-gradient-to-br from-blue-500 to-cyan-600 text-white p-6 rounded-xl shadow-lg col-span-2 relative overflow-hidden">
+
+                            <!-- Selector de Ubicación -->
+                            <div class="flex items-center gap-2 mb-4">
+                                <select id="weather-location-type" onchange="changeLocationType()"
+                                    class="bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer appearance-none pr-8 bg-no-repeat bg-right"
+                                    style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-position: right 0.5rem center; background-size: 1.25em 1.25em;">
+                                    <option value="peru" style="background-color: #1e40af; color: white;">🇵🇪 Perú
+                                    </option>
+                                    <option value="countries" style="background-color: #1e40af; color: white;">🌍 Países
+                                    </option>
+                                </select>
+
+                                <select id="weather-location" onchange="loadWeather()"
+                                    class="flex-1 bg-white/20 backdrop-blur-sm text-white border border-white/30 rounded-lg px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer appearance-none pr-8 bg-no-repeat bg-right"
+                                    style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-position: right 0.5rem center; background-size: 1.25em 1.25em;">
+                                    <!-- Se llenará con JavaScript -->
+                                </select>
+                            </div>
+
+                            <!-- Información del Clima -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm opacity-90 mb-1" id="weather-location-name">Lima, Perú</p>
+                                    <p class="text-5xl font-bold mb-2" id="weather-temp">--°C</p>
+                                    <p class="text-lg opacity-90" id="weather-desc">Cargando...</p>
+                                </div>
+                                <div class="text-7xl" id="weather-icon">
+                                    🌤️
+                                </div>
+                            </div>
+
+                            <!-- Info adicional -->
+                            <div class="flex gap-4 mt-4 pt-4 border-t border-white/20">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">💨</span>
+                                    <div>
+                                        <p class="text-xs opacity-75">Viento</p>
+                                        <p class="text-sm font-bold" id="weather-wind">-- km/h</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-2xl">🌡️</span>
+                                    <div>
+                                        <p class="text-xs opacity-75">Sensación</p>
+                                        <p class="text-sm font-bold" id="weather-feels">--°C</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Decoración de fondo -->
+                            <div class="absolute -right-10 -bottom-10 opacity-10">
+                                <svg class="w-48 h-48" fill="currentColor" viewBox="0 0 20 20">
+                                    <path
+                                        d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z">
+                                    </path>
+                                </svg>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- CATEGORIES -->
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Categorías</h2>
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 mb-10"
+                    id="categories-container">
+
+                    <!-- Categorías dinámicas -->
+
+                </div>
+
+
+
+                <!-- HEADLINES -->
+
+                <div class="flex justify-between items-center mb-4">
+
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+
+                        Titulares Destacados
+
+                        <span id="global-counter"
+                            class="text-xs font-normal bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded-full ml-2">Cargando...</span>
+
+                    </h2>
+
+                </div>
+
+
+
+                <h2 id="loading-message" class="text-center w-full py-10 text-lg text-gray-500 animate-pulse">Cargando
+
+                    noticias...</h2>
+
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10" id="headlines-container"></div>
+
+
+
+                <!-- LATEST NEWS -->
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Últimas Noticias</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="news-grid"></div>
+
+
+
+                <!-- PAGINATION -->
+
+                <div id="pagination-controls" class="flex justify-center items-center space-x-2 mt-8 pb-8 hidden">
+
+                    <button id="prev-page-btn" onclick="changePage('prev')"
+                        class="p-2 px-4 border rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition shadow-sm"
+                        disabled>
+
+                        ← Anterior
+
+                    </button>
+
+                    <span id="page-indicator" class="p-2 px-4 font-bold text-gray-700 dark:text-gray-300">Página
+
+                        1</span>
+
+                    <button id="next-page-btn" onclick="changePage('next')"
+                        class="p-2 px-4 border rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm">
+
+                        Siguiente →
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- FAVORITES CONTENT -->
+
+            <div class="max-w-7xl mx-auto px-6 py-8 hidden" id="favorites-content">
+
+                <div class="flex items-center justify-between mb-6">
+
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+
+                        <svg class="w-8 h-8 text-red-500" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+
+                            </path>
+
+                        </svg>
+
+                        Mis Artículos Favoritos
+
+                    </h2>
+
+                    <span id="favorites-total"
+                        class="text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full">
+
+                        0 favoritos guardados
+
+                    </span>
+
+                </div>
+
+
+
+                <div id="favorites-paywall" class="hidden"></div>
+
+                <div id="favorite-news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+            </div>
+
+            <!-- CONFIGURACIÓN / ADMIN DASHBOARD -->
+            <div class="max-w-7xl mx-auto px-6 py-8 hidden" id="admin-content">
+
+                <!-- Header -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+                        <svg class="w-8 h-8 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Panel de Administración
+                    </h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">Dashboard con métricas y estadísticas del portal
+                    </p>
+                </div>
+
+                <!-- KPIs Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+                    <!-- Total de Noticias -->
+                    <div
+                        class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide">Total
+                            Noticias</p>
+                        <p class="text-3xl font-black text-gray-900 dark:text-white mt-1" id="global-counter">4108</p>
+                    </div>
+
+                    <!-- Total de Fuentes -->
+                    <div
+                        class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wide">
+                            Fuentes</p>
+                        <p class="text-3xl font-black text-gray-900 dark:text-white mt-1" id="kpi-total-sources">6</p>
+                    </div>
+
+                    <!-- Noticias Hoy -->
+                    <div
+                        class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-6 border border-green-200 dark:border-green-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">
+                            Noticias Hoy</p>
+                        <p class="text-3xl font-black text-gray-900 dark:text-white mt-1" id="kpi-news-today">0</p>
+                    </div>
+
+                    <!-- Crecimiento -->
+                    <div
+                        class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-2xl p-6 border border-orange-200 dark:border-orange-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wide">
+                            Crecimiento vs Ayer</p>
+                        <p class="text-3xl font-black text-gray-900 dark:text-white mt-1" id="kpi-growth">22%</p>
+                    </div>
+
+                </div>
+
+                <!-- Gráficos Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+                    <!-- Gráfico de Barras - Fuentes -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                </path>
+                            </svg>
+                            Noticias por Fuente
+                        </h3>
+                        <div id="chart-sources" class="h-64"></div>
+                    </div>
+
+                    <!-- Gráfico de Barras - Categorías -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z">
+                                </path>
+                            </svg>
+                            Noticias por Categoría
+                        </h3>
+                        <div id="chart-categories" class="h-64"></div>
+                    </div>
+
+                </div>
+
+                <!-- Tabla y Nube de Palabras -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    
+
+                    <!-- Nube de Palabras -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z">
+                                </path>
+                            </svg>
+                            Palabras Más Frecuentes
+                        </h3>
+                        <div id="word-cloud"
+                            class="h-64 flex items-center justify-center flex-wrap gap-2 content-center">
+                            <!-- Se llenará con JavaScript -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MODAL PRICING -->
+
+    <div id="pricing-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4 overflow-y-auto">
+
+        <div
+            class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl shadow-2xl w-full max-w-7xl relative max-h-[95vh] overflow-y-auto my-8 border border-gray-200 dark:border-gray-700">
+
+            <button onclick="closePricingModal()"
+                class="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full text-gray-600 dark:text-gray-300 text-xl transition-all duration-200">
+
+                ×
+
+            </button>
+
+
+
+            <div class="p-8 lg:p-12">
+
+                <div class="mb-10 text-center">
+
+                    <div class="inline-block px-4 py-1 bg-primary-blue/10 dark:bg-primary-blue/20 rounded-full mb-4">
+
+                        <p class="text-xs font-bold text-primary-blue uppercase tracking-widest">ELIGE TU PLAN</p>
+
+                    </div>
+
+                    <h2
+                        class="text-5xl font-black text-gray-900 dark:text-white mb-3 bg-gradient-to-r from-primary-blue to-indigo-600 bg-clip-text text-transparent">
+
+                        Planes Premium
+
+                    </h2>
+
+                    <p class="text-lg text-gray-600 dark:text-gray-400">Compara características y elige el plan perfecto
+                        para ti</p>
+
+                </div>
+
+
+
+                <!-- Tabla de Comparación Mejorada -->
+
+                <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl mb-8">
+
+                    <table class="w-full border-collapse bg-white dark:bg-gray-800">
+
+                        <thead>
+
+                            <tr class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+
+                                <th class="text-left p-6 font-bold text-base text-gray-900 dark:text-white w-1/4">
+                                    Característica</th>
+
+                                <th class="p-6 text-center w-1/4">
+
+                                    <div class="space-y-2">
+
+                                        <div class="inline-block px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg">
+
+                                            <span
+                                                class="font-bold text-sm text-gray-700 dark:text-gray-300">GRATUITO</span>
+
+                                        </div>
+
+                                        <div class="text-3xl font-black text-gray-900 dark:text-white">S/0</div>
+
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Siempre gratis</div>
+
+                                    </div>
+
+                                </th>
+
+                                <th
+                                    class="p-6 pt-8 text-center bg-gradient-to-br from-primary-blue/5 to-indigo-100/50 dark:from-primary-blue/10 dark:to-indigo-900/20 relative w-1/4">
+
+                                    <div class="mt-6 absolute -top-4 left-1/2 transform -translate-x-1/2">
+
+                                        <span
+                                            class="px-4 py-1.5 bg-gradient-to-r from-primary-blue to-indigo-600 text-white text-xs font-bold rounded-full shadow-lg whitespace-nowrap">
+
+                                            MÁS POPULAR
+
+                                        </span>
+
+                                    </div>
+
+                                    <div class="space-y-2 mt-2">
+
+                                        <div
+                                            class="inline-block px-3 py-1 bg-primary-blue/20 dark:bg-primary-blue/30 rounded-lg">
+
+                                            <span class="font-bold text-sm text-primary-blue">MENSUAL</span>
+
+                                        </div>
+
+                                        <div class="text-3xl font-black text-primary-blue">S/29.90</div>
+
+                                        <div class="text-xs text-gray-600 dark:text-gray-400">por mes</div>
+
+                                    </div>
+
+                                </th>
+
+                                <th class="p-6 text-center w-1/4">
+
+                                    <div class="space-y-2">
+
+                                        <div
+                                            class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-lg">
+
+                                            <span
+                                                class="font-bold text-sm text-green-700 dark:text-green-400">ANUAL</span>
+
+                                        </div>
+
+                                        <div class="text-3xl font-black text-gray-900 dark:text-white">S/299</div>
+
+                                        <div class="text-xs font-bold text-green-600 dark:text-green-400">Ahorras
+                                            S/59.80</div>
+
+                                    </div>
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody class="text-sm">
+
+                            <tr
+                                class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+
+                                <td class="p-5 font-semibold text-gray-900 dark:text-white">Acceso a Noticias</td>
+
+                                <td class="p-5 text-center text-gray-600 dark:text-gray-400">Últimas 300</td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <span
+                                        class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-semibold">Ilimitado</span>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <span
+                                        class="inline-block px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg font-semibold">Ilimitado
+                                        + Prioritario</span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                                class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+
+                                <td class="p-5 font-semibold text-gray-900 dark:text-white">Experiencia</td>
+
+                                <td class="p-5 text-center text-gray-600 dark:text-gray-400">Con anuncios</td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <span
+                                        class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-semibold">Sin
+                                        anuncios</span>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <span
+                                        class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-semibold">Sin
+                                        anuncios</span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                                class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+
+                                <td class="p-5 font-semibold text-gray-900 dark:text-white">Favoritos</td>
+
+                                <td class="p-5 text-center">
+
+                                    <span class="text-red-500 font-semibold">No disponible</span>
+
+                                </td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">Ilimitado</span>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">Ilimitado</span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                                class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+
+                                <td class="p-5 font-semibold text-gray-900 dark:text-white">Filtros Avanzados</td>
+
+                                <td class="p-5 text-center text-gray-600 dark:text-gray-400">Básicos</td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">Todos</span>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">Todos</span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                                class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+
+                                <td class="p-5 font-semibold text-gray-900 dark:text-white">Análisis de Intereses</td>
+
+                                <td class="p-5 text-center">
+
+                                    <span class="text-red-500 font-semibold">No disponible</span>
+
+                                </td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">Estadísticas</span>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Detalladas</span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                                class="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition">
+
+                                <td class="p-5 font-semibold text-gray-900 dark:text-white">Notificaciones</td>
+
+                                <td class="p-5 text-center text-gray-600 dark:text-gray-400">Limitadas</td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <span class="text-green-600 dark:text-green-400 font-semibold">Tiempo Real</span>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <span
+                                        class="text-indigo-600 dark:text-indigo-400 font-semibold">Personalizadas</span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr
+                                class="border-t-2 border-gray-300 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50">
+
+                                <td class="p-5 font-bold text-gray-900 dark:text-white text-base">Precio Total</td>
+
+                                <td class="p-5 text-center">
+
+                                    <div class="text-2xl font-black text-gray-900 dark:text-white">S/0</div>
+
+                                    <div class="text-xs text-gray-500">para siempre</div>
+
+                                </td>
+
+                                <td class="p-5 text-center bg-primary-blue/5 dark:bg-primary-blue/10">
+
+                                    <div class="text-2xl font-black text-primary-blue">S/29.90</div>
+
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">por mes</div>
+
+                                </td>
+
+                                <td class="p-5 text-center">
+
+                                    <div class="text-2xl font-black text-gray-900 dark:text-white">S/24.92</div>
+
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">por mes (S/299/año)</div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <!-- Botones de Acción Mejorados -->
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <button onclick="closePricingModal()"
+                        class="group relative overflow-hidden bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 py-4 px-6 rounded-2xl text-gray-700 dark:text-gray-300 font-bold hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 shadow-md hover:shadow-lg">
+
+                        <span class="relative z-10">Continuar Gratis</span>
+
+                    </button>
+
+                    <button onclick="openPaymentModal('Mensual', 29.90)"
+                        class="group relative overflow-hidden bg-gradient-to-r from-primary-blue to-indigo-600 hover:from-indigo-600 hover:to-primary-blue py-4 px-6 rounded-2xl text-white font-bold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105">
+
+                        <span class="relative z-10">Elegir Plan Mensual</span>
+
+                        <div
+                            class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300">
+                        </div>
+
+                    </button>
+
+                    <button onclick="openPaymentModal('Anual', 299.00)"
+                        class="group relative overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black py-4 px-6 rounded-2xl text-white font-bold transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105">
+
+                        <span class="relative z-10">Elegir Plan Anual</span>
+
+                        <div
+                            class="absolute top-0 right-0 px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-bl-lg">
+                            AHORRA</div>
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- Footer Note -->
+
+                <div class="mt-8 text-center">
+
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+
+                        Todos los planes incluyen acceso completo a las funciones básicas. Cancela en cualquier momento.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MODAL PAYMENT -->
+
+    <div id="payment-modal" class="fixed inset-0 z-[60] hidden items-center justify-center modal-backdrop p-4">
+
+        <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-gray-700">
+
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 border-b flex justify-between items-center">
+
+                <h3 class="font-bold text-gray-900 dark:text-white">Pasarela de Pago</h3>
+
+                <button onclick="closePaymentModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+
+            </div>
+
+            <div class="p-6">
+
+                <div class="mb-6 text-center">
+
+                    <h2 id="payment-plan-name" class="text-2xl font-bold text-primary-blue">Plan</h2>
+
+                    <div id="payment-amount" class="text-3xl font-black text-gray-900 dark:text-white">S/0.00</div>
+
+                </div>
+
+                <div class="flex mb-4 border-b dark:border-gray-700">
+
+                    <button onclick="switchPaymentMethod('yape')" id="tab-yape"
+                        class="flex-1 py-2 font-bold border-b-2 border-yape text-yape">Yape/Plin</button>
+
+                    <button onclick="switchPaymentMethod('card')" id="tab-card"
+                        class="flex-1 py-2 text-gray-500">Tarjeta</button>
+
+                </div>
+
+                <div id="method-yape">
+
+                    <div class="text-center space-y-4">
+
+                        <div class="mx-auto w-48 h-48 bg-white p-2 border rounded flex items-center justify-center">
+
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YapeNewsAI"
+                                alt="QR">
+
+                        </div>
+
+                        <p class="text-xs text-gray-400">Escanea para pagar</p>
+
+                    </div>
+
+                </div>
+
+                <div id="method-card" class="hidden">
+
+                    <p class="text-center text-gray-500 py-4">Ingresa los datos de tu tarjeta...</p>
+
+                </div>
+
+                <button onclick="processPayment()"
+                    class="mt-6 w-full bg-primary-blue hover:bg-indigo-700 text-white font-bold py-3 rounded-xl">Confirmar
+
+                    Pago</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MODAL PROCESSING -->
+
+    <div id="processing-modal"
+        class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center">
+
+            <div id="processing-step">
+
+                <div class="loader mx-auto mb-4"></div>
+
+                <h3 class="text-gray-900 dark:text-white">Procesando...</h3>
+
+            </div>
+
+            <div id="success-step" class="hidden">
+
+                <div class="text-4xl mb-2">✅</div>
+
+                <h3 class="text-gray-900 dark:text-white font-bold">¡Pago Exitoso!</h3>
+
+                <button onclick="finishPaymentFlow()"
+                    class="mt-4 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg">Continuar</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL DE PERFIL -->
+    <div id="profile-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-2xl shadow-2xl relative overflow-hidden">
+
+            <!-- Header con gradiente -->
+            <div class="bg-gradient-to-r from-primary-blue to-indigo-600 p-8 text-white relative">
+                <button onclick="closeProfileModal()"
+                    class="absolute top-4 right-4 text-white/80 hover:text-white text-2xl font-bold">✕</button>
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-4xl"
+                        id="profile-avatar-large">
+                        👤
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold" id="profile-header-name">Usuario</h2>
+                        <p class="text-sm opacity-90" id="profile-header-email">email@ejemplo.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido del perfil -->
+            <div class="p-8 space-y-6">
+
+                <!-- Información de cuenta -->
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                    <h3 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Información de Cuenta
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Email (no
+                                editable)</label>
+                            <div class="mt-1 p-3 bg-gray-200 dark:bg-gray-600 rounded-lg text-gray-700 dark:text-gray-300 text-sm"
+                                id="profile-email-display">
+                                email@ejemplo.com
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Nombre de
+                                Usuario</label>
+                            <input type="text" id="profile-name-input" placeholder="Tu nombre"
+                                class="mt-1 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:border-primary-blue focus:ring-2 focus:ring-primary-blue/20 text-gray-900 dark:text-white">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-medium text-gray-600 dark:text-gray-400 block mb-2">Avatar / Foto
+                                de Perfil</label>
+                            <div class="flex gap-3 flex-wrap">
+                                <button onclick="selectAvatar('👤')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">👤</button>
+                                <button onclick="selectAvatar('😊')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">😊</button>
+                                <button onclick="selectAvatar('🎨')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">🎨</button>
+                                <button onclick="selectAvatar('🚀')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">🚀</button>
+                                <button onclick="selectAvatar('🌟')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">🌟</button>
+                                <button onclick="selectAvatar('🎯')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">🎯</button>
+                                <button onclick="selectAvatar('💼')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">💼</button>
+                                <button onclick="selectAvatar('🎮')"
+                                    class="avatar-option w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-primary-blue/20 dark:hover:bg-primary-blue/30 flex items-center justify-center text-2xl transition-all border-2 border-transparent hover:border-primary-blue">🎮</button>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Selecciona un emoji como tu avatar
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado de la cuenta -->
+                <div
+                    class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-indigo-200 dark:border-indigo-800">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-medium text-gray-600 dark:text-gray-400">Estado de Suscripción</p>
+                            <p class="text-lg font-bold text-gray-900 dark:text-white" id="profile-plan-status">Plan
+                                Gratuito</p>
+                        </div>
+                        <button onclick="closeProfileModal(); openPricingModal();"
+                            class="bg-gradient-to-r from-primary-blue to-indigo-600 hover:from-indigo-600 hover:to-primary-blue text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-lg">
+                            Mejorar Plan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mensaje de guardado -->
+                <div id="profile-save-message"
+                    class="hidden bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl text-sm text-center">
+                    ✅ Cambios guardados correctamente
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex gap-3">
+                    <button onclick="saveProfileChanges()"
+                        class="flex-1 bg-primary-blue hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all hover:shadow-xl">
+                        Guardar Cambios
+                    </button>
+                    <button onclick="closeProfileModal()"
+                        class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- MODAL DE SCRAPING -->
+    <div id="scraping-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-4xl shadow-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
+
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-8 text-white relative">
+                <button onclick="closeScrapingModal()"
+                    class="absolute top-4 right-4 text-white/80 hover:text-white text-2xl font-bold">✕</button>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-4xl">
+                        🔄
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold">Actualizar Noticias</h2>
+                        <p class="text-sm opacity-90">Selecciona la fuente que deseas scrapear</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido -->
+            <div class="p-8">
+
+                <!-- Mensaje de info -->
+                <div
+                    class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>💡 Nota:</strong> El scraping puede tardar entre 30 segundos y 2 minutos dependiendo de
+                        la fuente seleccionada.
+                    </p>
+                </div>
+
+                <!-- Lista de fuentes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6" id="sources-list">
+                    <!-- Se llenará con JavaScript -->
+                </div>
+
+                <!-- Estado del scraping -->
+                <div id="scraping-status" class="hidden">
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 text-center">
+                        <div class="loader mx-auto mb-4"></div>
+                        <p class="text-lg font-semibold text-gray-900 dark:text-white mb-2" id="scraping-status-text">
+                            Iniciando scraping...</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="scraping-status-detail">Esto puede
+                            tardar un momento</p>
+                        <div class="mt-4 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                            <div id="scraping-progress-bar"
+                                class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados -->
+                <div id="scraping-results" class="hidden">
+                    <div
+                        class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 text-center">
+                        <div class="text-5xl mb-3">✅</div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¡Scraping Completado!</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4" id="scraping-results-text">
+                            Se han agregado <span class="font-bold text-green-600 dark:text-green-400">0</span> noticias
+                            nuevas
+                        </p>
+                        <button onclick="finishScraping()"
+                            class="bg-blue-500 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-xl transition">
+                            Ver Noticias
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL AUTH -->
+
+    <div id="auth-section" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+
+
+
+        <div
+            class="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-4xl shadow-2xl relative overflow-hidden flex transform transition-transform duration-500">
+
+
+
+            <div
+                class="hidden md:flex w-1/2 bg-gradient-to-br from-indigo-600 to-fuchsia-700 p-8 flex-col justify-end text-white relative">
+
+
+
+                <div class="absolute top-8 left-8 text-4xl font-extrabold">
+
+                    <span class="text-neon-400">*</span>
+
+                </div>
+
+
+
+                <div class="z-10">
+
+                    <p class="text-sm opacity-80 mb-2">
+
+                        ¡Acceso al Portal!
+
+                    </p>
+
+                    <h3 class="text-3xl font-bold leading-snug">
+
+                        Mantente informado con noticias en tiempo real.
+
+                    </h3>
+
+                </div>
+
+
+
+                <div class="absolute inset-0 bg-blend-soft-light opacity-50 backdrop-blur-md"></div>
+
+            </div>
+
+
+
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+
+
+
+                <div class="text-2xl font-extrabold mb-8 text-primary-blue md:hidden">
+
+                    <span class="text-neon-400">*</span> Portal
+
+                </div>
+
+
+
+                <div id="auth-form-container">
+
+
+
+                    <h2 id="login-title" class="text-3xl font-extrabold mb-2 text-gray-900 dark:text-white">Ingresar
+                    </h2>
+
+                    <p id="login-subtitle" class="text-sm text-gray-500 mb-6">Accede a tu cuenta para guardar favoritos.
+                    </p>
+
+
+
+                    <form id="login-form" class="space-y-6">
+
+                        <label class="block">
+
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tu email</span>
+
+                            <input type="email" id="login-email" placeholder="email@ejemplo.com"
+                                class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus:border-primary-blue focus:ring-primary-blue text-gray-900 dark:text-white mt-1">
+
+                        </label>
+
+                        <label class="block">
+
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</span>
+
+                            <input type="password" id="login-password" placeholder="••••••••"
+                                class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus:border-primary-blue focus:ring-primary-blue text-gray-900 dark:text-white mt-1">
+
+                        </label>
+
+                        <button type="submit"
+                            class="w-full bg-primary-blue hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
+
+                            Ingresar
+
+                        </button>
+
+
+
+                        <div class="text-center text-sm my-4 text-gray-500 dark:text-gray-400">o continuar con</div>
+
+                        
+
+                    </form>
+
+
+
+                    <form id="register-form" class="space-y-6 hidden">
+
+                        <h2 class="text-3xl font-extrabold mb-2 text-gray-900 dark:text-white">Crear Cuenta</h2>
+
+                        <p class="text-sm text-gray-500 mb-6">Regístrate para obtener acceso gratuito.</p>
+
+                        <label class="block">
+
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tu email</span>
+
+                            <input type="email" id="register-email" placeholder="email@ejemplo.com"
+                                class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus:border-primary-blue focus:ring-primary-blue text-gray-900 dark:text-white mt-1">
+
+                        </label>
+
+                        <label class="block">
+
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</span>
+
+                            <input type="password" id="register-password" placeholder="Mínimo 6 caracteres"
+                                class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus:border-primary-blue focus:ring-primary-blue text-gray-900 dark:text-white mt-1">
+
+                        </label>
+
+                        <button type="submit"
+                            class="w-full bg-neon-400 hover:bg-cyan-500 text-black font-bold py-3 rounded-xl shadow-lg transition">
+
+                            Registrarse
+
+                        </button>
+
+                        <div class="text-center mt-4 text-sm space-x-4 text-gray-500 dark:text-gray-400">o continuar con
+                        </div>
+
+                        <div class="flex space-x-3 justify-center">
+
+                            <button
+                                class="flex-1 border border-gray-300 dark:border-gray-600 py-2 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Google</button>
+
+                            <button
+                                class="flex-1 border border-gray-300 dark:border-gray-600 py-2 rounded-xl text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Facebook</button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+
+                <div class="text-center mt-6 text-sm">
+
+                    <button id="switch-to-register" class="text-primary-blue font-bold hover:underline">¿No tienes
+                        cuenta? Crear cuenta</button>
+
+                    <button id="switch-to-login" class="text-primary-blue font-bold hidden hover:underline">¿Ya tienes
+                        cuenta? Ingresar</button>
+
+                </div>
+
+
+
+                <button onclick="document.getElementById('auth-section').classList.add('hidden')"
+                    class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script type="module">
+
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+
+
+        // 🔑 CONFIGURACIÓN DE SUPABASE
+
+        const supabaseUrl = 'https://bziuhbswzpcqduitponw.supabase.co';
+
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6aXVoYnN3enBjcWR1aXRwb253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MDExMDcsImV4cCI6MjA3OTI3NzEwN30.xGMJgpr7tOQw5d6WAYJmFjZAMdM2d0cc7b7kI-j6OD0';
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+
+        // 📅 CONSTANTES GLOBALES DE FECHAS
+
+        const START_DATE = new Date('2025-09-11T00:00:00Z').getTime();
+
+        const END_DATE = new Date('2025-11-25T23:59:59Z').getTime();
+
+        const DATE_RANGE_MS = END_DATE - START_DATE;
+
+
+
+        // 📋 CONFIGURACIÓN DE DATOS
+
+
+
+        const categories = [
+
+            { id: 'general', name: 'General', icon: '📰', color: 'blue' },
+
+            { id: 'actualidad', name: 'Actualidad', icon: '🌍', color: 'green' },
+
+            { id: 'deportes', name: 'Deportes', icon: '⚽', color: 'red' },
+
+            { id: 'economia', name: 'Economía', icon: '💰', color: 'yellow' },
+
+            { id: 'tecnologia', name: 'Tecnología', icon: '💻', color: 'purple' },
+
+            { id: 'cultura', name: 'Cultura', icon: '🎭', color: 'pink' },
+
+            { id: 'ciencia', name: 'Ciencia', icon: '🔬', color: 'indigo' },
+
+            { id: 'politica', name: 'Política', icon: '🏛️', color: 'gray' }
+
+        ];
+
+
+
+        const PORTAL_CONFIG = {
+
+            "BBC Home": { cat: "General", fuente: "BBC", pais: "Reino Unido" },
+
+            "BBC News": { cat: "Actualidad", fuente: "BBC", pais: "Reino Unido" },
+
+            "BBC Sport": { cat: "Deportes", fuente: "BBC", pais: "Reino Unido" },
+
+            "BBC Business": { cat: "Economía", fuente: "BBC", pais: "Reino Unido" },
+
+            "Clarin": { cat: "General", fuente: "Clarín", pais: "Argentina" },
+
+            "Clarin ultimo": { cat: "Última Hora", fuente: "Clarín", pais: "Argentina" },
+
+            "Clarin politica": { cat: "Política", fuente: "Clarín", pais: "Argentina" },
+
+            "Yahoo Noticias": { cat: "General", fuente: "Yahoo", pais: "Global" },
+
+            "El Mundo": { cat: "General", fuente: "El Mundo", pais: "España" },
+
+            "Infobae España": { cat: "Internacional", fuente: "Infobae", pais: "España" },
+
+            "Infobae México": { cat: "Internacional", fuente: "Infobae", pais: "México" },
+
+            "Infobae Perú": { cat: "Nacional", fuente: "Infobae", pais: "Perú" }
+
+        };
+
+
+
+        const COUNTRY_KEYWORDS = {
+
+            "perú": "Perú", "lima": "Perú", "colombia": "Colombia", "bogotá": "Colombia", "méxico": "México",
+
+            "chile": "Chile", "argentina": "Argentina", "españa": "España",
+
+        };
+
+
+
+        const CATEGORY_KEYWORDS = {
+
+            "futbol": "Deportes", "liga": "Deportes", "gol": "Deportes", "mundial": "Deportes", "tenis": "Deportes",
+
+            "bolsa": "Economía", "dólar": "Economía", "inversión": "Economía", "banco": "Economía", "pbi": "Economía",
+
+            "ai": "Tecnología", "inteligencia artificial": "Tecnología", "google": "Tecnología", "apple": "Tecnología", "software": "Tecnología",
+
+            "espacio": "Ciencia", "nasa": "Ciencia", "virus": "Ciencia", "descubrimiento": "Ciencia",
+
+            "presidente": "Política", "congreso": "Política", "elecciones": "Política", "ministro": "Política",
+
+            "cine": "Cultura", "música": "Cultura", "libro": "Cultura", "teatro": "Cultura"
+
+        };
+
+
+
+        // Mapeo de Categorías para fácil acceso a iconos y colores
+
+        const CATEGORIES_MAP = categories.reduce((acc, cat) => {
+
+            acc[cat.name] = cat;
+
+            return acc;
+
+        }, {});
+
+
+
+        // 💡 VARIABLES GLOBALES (Sólo una vez)
+
+        let allNews = [];
+
+        let filteredNews = [];
+
+        let currentPage = 1;
+
+        const ITEMS_PER_PAGE = 100;
+
+        let totalDocsCount = 0;
+
+        let currentUser = JSON.parse(localStorage.getItem('newsPortalUser')) || null;
+
+        let userFavorites = [];
+
+
+
+        // 🔗 REFERENCIAS DOM (Sólo una vez)
+
+        const newsGrid = document.getElementById('news-grid');
+
+        const headlinesContainer = document.getElementById('headlines-container');
+
+        const loadingMessage = document.getElementById('loading-message');
+
+        const searchInput = document.getElementById('search-input');
+
+        const filterPais = document.getElementById('filter-pais');
+
+        const filterPortal = document.getElementById('filter-portal');
+
+        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+
+        const resetFiltersBtn = document.getElementById('reset-filters-btn');
+
+        const filterFechaInicio = document.getElementById('filter-fecha-inicio');
+
+        const filterFechaFin = document.getElementById('filter-fecha-fin');
+
+
+
+        // --- FUNCIONES DE UTILIDAD ---
+
+        function updateAdminVisibility(isAdmin) {
+
+            const dashboardLink = document.getElementById('nav-dashboard-admin');
+
+
+
+            if (dashboardLink) {
+
+                if (isAdmin) {
+
+                    // Si es administrador, mostrar el enlace
+
+                    dashboardLink.classList.remove('hidden');
+
+                } else {
+
+                    // Si no lo es, asegurar que esté oculto
+
+                    dashboardLink.classList.add('hidden');
+
+                }
+
+            }
+
+        }
+
+
+
+        function getFavoriteIconHTML(isFavorited) {
+
+            // Si isFavorited es true, usa color rojo y fill, si no, gris y sin fill.
+
+            const color = isFavorited ? 'text-red-500' : 'text-gray-400 dark:text-gray-500';
+
+            const fill = isFavorited ? 'fill-red-500' : 'fill-none';
+
+
+
+            return `
+
+        <svg class="w-full h-full transition-colors duration-200 ${color} ${fill}"
+
+             stroke="currentColor" viewBox="0 0 24 24">
+
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+
+            </path>
+
+        </svg>
+
+    `;
+
+        }
+
+
+
+        // Comprueba si una noticia está en la lista de favoritos
+
+        function isFavorite(newsId) {
+
+            return userFavorites.includes(newsId);
+
+        }
+
+
+
+        // 1. Carga los favoritos del usuario actual al iniciar sesión (MODO LOCAL)
+
+        async function loadUserFavorites() {
+
+            userFavorites = []; // Reinicia la lista
+
+            if (currentUser) {
+
+                const userId = currentUser.email;
+
+
+
+                // 🔧 MODO LOCAL: Cargar desde localStorage
+
+                const favoritesKey = `favorites_${userId}`;
+
+                const savedFavorites = localStorage.getItem(favoritesKey);
+
+
+
+                if (savedFavorites) {
+
+                    try {
+
+                        userFavorites = JSON.parse(savedFavorites);
+
+                        console.log(`✅ Cargados ${userFavorites.length} favoritos locales para ${userId}`);
+
+                    } catch (e) {
+
+                        console.error("Error al parsear favoritos:", e);
+
+                        userFavorites = [];
+
+                    }
+
+                } else {
+
+                    console.log(`📭 No hay favoritos guardados para ${userId}`);
+
+                }
+
+            }
+
+            updateFavoritesCounter();
+
+        }
+
+
+
+        // Función auxiliar para guardar favoritos en localStorage
+
+        function saveFavoritesToLocalStorage() {
+
+            if (currentUser) {
+
+                const userId = currentUser.email;
+
+                const favoritesKey = `favorites_${userId}`;
+
+                localStorage.setItem(favoritesKey, JSON.stringify(userFavorites));
+
+                console.log(`💾 Favoritos guardados localmente para ${userId}`);
+
+            }
+
+        }
+
+
+
+        // 2. Maneja el clic en el corazón para guardar/eliminar
+
+        async function handleFavoriteClick(newsId) {
+
+            if (!currentUser) {
+
+                alert("💝 Debes iniciar sesión para guardar tus noticias favoritas.");
+
+                showAuthModal(false);
+
+                return;
+
+            }
+
+
+
+            const isAdmin = currentUser.email === 'admin@portal.com';
+
+            const isPremium = currentUser.is_premium || isAdmin;
+
+            const isCurrentlyFavorite = isFavorite(newsId);
+
+            let error;
+
+
+
+            // ⭐️ RESTRICCIÓN PREMIUM: Bloquea guardar un nuevo favorito si no es Premium
+
+            if (!isPremium && !isCurrentlyFavorite) {
+
+                alert("⭐ Los favoritos son una función exclusiva Premium. ¡Actualiza tu plan para guardar noticias!");
+
+                openPricingModal();
+
+                return;
+
+            }
+
+
+
+            // 🔧 MODO LOCAL: Guardar/Eliminar en localStorage
+
+            if (isCurrentlyFavorite) {
+
+                // Eliminar favorito
+
+                userFavorites = userFavorites.filter(id => id !== newsId);
+
+                console.log(`🗑️ Favorito eliminado: ${newsId}`);
+
+            } else {
+
+                // Agregar favorito
+
+                userFavorites.push(newsId);
+
+                console.log(`❤️ Favorito agregado: ${newsId}`);
+
+            }
+
+
+
+            // Guardar en localStorage
+
+            saveFavoritesToLocalStorage();
+
+
+
+            // Actualiza el ícono inmediatamente en todas las tarjetas
+
+            const favoriteIcons = document.querySelectorAll(`.favorite-btn[data-news-id="${newsId}"]`);
+
+            favoriteIcons.forEach(icon => {
+
+                const newIsFavorited = isFavorite(newsId);
+
+                const iconContainer = icon.querySelector('div');
+
+                if (iconContainer) {
+
+                    iconContainer.innerHTML = getFavoriteIconHTML(newIsFavorited);
+
+                }
+
+            });
+
+
+
+            // Actualizar contador
+
+            updateFavoritesCounter();
+
+
+
+            // Si estamos en la página de favoritos y eliminamos uno, re-renderiza
+
+            if (window.location.hash === '#favorites') {
+
+                renderFavoritesPage();
+
+            }
+
+        }
+
+
+
+        function renderNewsCard(news) {
+
+            const isFavorited = isFavorite(news.id);
+
+            const favoriteIconHtml = getFavoriteIconHTML(isFavorited);
+
+            const formatted = news.dateObject.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+
+
+
+            return `
+
+        <article class="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700 flex flex-col h-full">
+
+            <div class="h-40 bg-cover bg-center relative" style="background-image: url('${news.imagen}');">
+
+                ${news.categoria ? `<span class="absolute top-2 left-2 bg-primary-blue text-white text-xs px-2 py-1 rounded-full font-bold">${news.categoria}</span>` : ''}
+
+
+
+                <button
+
+                    class="favorite-btn absolute top-2 right-2 p-2 bg-white/80 dark:bg-gray-900/80 rounded-full backdrop-blur-sm shadow-lg hover:scale-110 transition-transform duration-200"
+
+                    data-news-id="${news.id}"
+
+                    onclick="handleFavoriteClick('${news.id}')"
+
+                    title="Agregar a favoritos"
+
+                >
+
+                    <div class="w-6 h-6">
+
+                        ${favoriteIconHtml}
+
+                    </div>
+
+                </button>
+
+            </div>
+
+            <div class="p-4 flex flex-col flex-1">
+
+                <h3 class="text-base font-bold leading-tight mb-2 hover:text-primary-blue cursor-pointer text-gray-900 dark:text-gray-100 line-clamp-2">
+
+                    ${news.titulo}
+
+                </h3>
+
+                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">${news.resumen || ''}</p>
+
+                <div class="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs">
+
+                    <div class="flex items-center space-x-2">
+
+                        <span class="font-bold text-primary-blue">${news.fuente || 'Fuente'}</span>
+
+                        <span class="text-gray-400">•</span>
+
+                        <span class="text-gray-500">${formatted}</span>
+
+                        ${news.pais ? `<span class="text-gray-400">•</span><span class="text-gray-500">${news.pais}</span>` : ''}
+
+                    </div>
+
+                    <a href="${news.enlace}" target="_blank" class="text-primary-blue hover:underline font-semibold">Leer →</a>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `;
+
+        }
+
+
+
+        // Hacer la función accesible globalmente
+
+        window.handleFavoriteClick = handleFavoriteClick;
+
+
+
+        // Función para actualizar el contador de favoritos
+
+        function updateFavoritesCounter() {
+
+            const counter = document.getElementById('favorites-count');
+
+            if (counter) {
+
+                if (userFavorites.length > 0) {
+
+                    counter.textContent = userFavorites.length;
+
+                    counter.classList.remove('hidden');
+
+                } else {
+
+                    counter.classList.add('hidden');
+
+                }
+
+            }
+
+        }
+
+
+
+        // Función para toggle entre vista principal y favoritos
+
+        window.toggleFavoritesView = () => {
+
+            const currentHash = window.location.hash;
+
+            if (currentHash === '#favorites') {
+
+                window.location.hash = '#home';
+
+            } else {
+
+                window.location.hash = '#favorites';
+
+            }
+
+        };
+
+
+
+        function getUniqueCategories(newsItems) {
+
+            const uniqueCategoryNames = [...new Set(newsItems.map(n => n.categoria).filter(Boolean))].sort();
+
+
+
+            return uniqueCategoryNames
+
+                .map(name => CATEGORIES_MAP[name])
+
+                .filter(cat => cat);
+
+        }
+
+
+
+        function getRandomImage(categoria = 'news') {
+
+            const categoriaMap = {
+
+                'General': 'newspaper', 'Actualidad': 'world', 'Deportes': 'sports', 'Economía': 'business',
+
+                'Tecnología': 'technology', 'Cultura': 'culture', 'Ciencia': 'science', 'Política': 'politics',
+
+                'Arte': 'art', 'Viajes': 'travel'
+
+            };
+
+            const keyword = categoriaMap[categoria] || 'news';
+
+            const randomId = Math.floor(Math.random() * 1000);
+
+            return `https://picsum.photos/seed/${keyword}${randomId}/400/300`;
+
+        }
+
+
+
+        // ⭐️ Función con DEDUCCIÓN DE CATEGORÍA Y PAÍS
+
+        function normalizarNoticia(row) {
+
+            const rawFuente = row.fuente;
+
+            const rawTitulo = (row.titulo || '').toLowerCase();
+
+
+
+            let categoriaFinal = row.categoria || "General";
+
+            let fuenteFinal = rawFuente;
+
+            let paisFinal = row.pais || "Internacional";
+
+
+
+            // 1. Detección por PORTAL
+
+            if (PORTAL_CONFIG[rawFuente]) {
+
+                categoriaFinal = PORTAL_CONFIG[rawFuente].cat || categoriaFinal;
+
+                fuenteFinal = PORTAL_CONFIG[rawFuente].fuente;
+
+                paisFinal = PORTAL_CONFIG[rawFuente].pais || paisFinal;
+
+            }
+
+
+
+            // 2. Detección de CATEGORÍA por TÍTULO (si aún es 'General')
+
+            if (categoriaFinal === "General") {
+
+                for (const keyword in CATEGORY_KEYWORDS) {
+
+                    if (rawTitulo.includes(keyword)) {
+
+                        categoriaFinal = CATEGORY_KEYWORDS[keyword];
+
+                        break;
+
+                    }
+
+                }
+
+            }
+
+
+
+            // 3. Detección de PAÍS por TÍTULO (si aún es 'Internacional')
+
+            if (paisFinal === "Internacional" || !PORTAL_CONFIG[rawFuente]?.pais) {
+
+                for (const keyword in COUNTRY_KEYWORDS) {
+
+                    if (rawTitulo.includes(keyword)) {
+
+                        paisFinal = COUNTRY_KEYWORDS[keyword];
+
+                        break;
+
+                    }
+
+                }
+
+            }
+
+
+
+            const imagenFinal = row.imagen || getRandomImage(categoriaFinal);
+
+
+
+            // Generación de fecha ALEATORIA SIMULADA
+
+            const randomOffset = Math.floor(Math.random() * DATE_RANGE_MS);
+
+            const randomTime = START_DATE + randomOffset;
+
+            const simulatedDate = new Date(randomTime);
+
+
+
+            return {
+
+                id: row.id,
+
+                ...row,
+
+                categoria: categoriaFinal,
+
+                fuente: fuenteFinal,
+
+                fuenteOriginal: rawFuente,
+
+                imagen: imagenFinal,
+
+                pais: paisFinal,
+
+                dateObject: simulatedDate
+
+            };
+
+        }
+
+
+
+        // --- Funciones de Carga y Datos ---
+
+
+
+        async function fetchTotalCount() {
+
+            const { count, error } = await supabase
+
+                .from('noticias')
+
+                .select('*', { count: 'exact', head: true });
+
+            if (error) {
+
+                console.error("Error al obtener el conteo total:", error);
+
+                return;
+
+            }
+
+            totalDocsCount = count || 0;
+
+            document.getElementById('global-counter').textContent = `${totalDocsCount} noticias`;
+
+        }
+
+
+
+        async function loadAllNews() {
+
+            loadingMessage.classList.remove('hidden');
+
+            newsGrid.innerHTML = '';
+
+            headlinesContainer.innerHTML = '';
+
+
+
+            const { data, error } = await supabase
+
+                .from('noticias')
+
+                .select('*')
+
+                .order('fecha_subida', { ascending: false });
+
+
+
+            if (error) {
+
+                console.error("Error cargando noticias de Supabase:", error);
+
+                newsGrid.innerHTML = '<p class="text-red-500 text-center col-span-4">Error cargando noticias.</p>';
+
+            } else if (data) {
+
+                allNews = data.map(normalizarNoticia);
+
+
+
+                // 🚀 ORDENAMIENTO POR LA FECHA SIMULADA
+
+                allNews.sort((a, b) => b.dateObject.getTime() - a.dateObject.getTime());
+
+
+
+                filteredNews = [...allNews];
+
+
+
+                populateFilters(allNews); // Rellena País y Fuente
+
+
+
+                renderNews(getNewsPage(1));
+
+                renderHeadlines(filteredNews);
+
+                updatePaginationLocal();
+
+                renderCategories();
+
+            }
+
+
+
+            loadingMessage.classList.add('hidden');
+
+        }
+
+
+
+        // --- Funciones de Filtrado y Paginación Local ---
+
+
+
+        function populateFilters(newsItems) {
+
+            const fuentes = [...new Set(newsItems.map(n => n.fuente).filter(Boolean))].sort();
+
+            const paises = [...new Set(newsItems.map(n => n.pais).filter(Boolean))].sort();
+
+
+
+            // Rellenar Fuentes
+
+            if (filterPortal) {
+
+                filterPortal.innerHTML = '<option value="">Todas las fuentes</option>';
+
+                fuentes.forEach(f => {
+
+                    filterPortal.innerHTML += `<option value="${f}">${f}</option>`;
+
+                });
+
+            }
+
+
+
+            // Rellenar Países
+
+            if (filterPais) {
+
+                filterPais.innerHTML = '<option value="">Todos los países</option>';
+
+                paises.forEach(p => {
+
+                    filterPais.innerHTML += `<option value="${p}">${p}</option>`;
+
+                });
+
+            }
+
+        }
+
+
+
+        // Función para filtrar por CATEGORÍA al hacer click en el icono
+
+        function filterByCategory(categoryName) {
+
+            // Si ya está filtrando por esta categoría, limpiar el filtro.
+
+            const isCurrentlyFiltered = filteredNews.length < allNews.length && filteredNews[0]?.categoria === categoryName;
+
+
+
+            if (isCurrentlyFiltered) {
+
+                // Limpiar filtro y usar todas las noticias (simulando reset)
+
+                filteredNews = [...allNews];
+
+            } else {
+
+                // Aplicar filtro de categoría
+
+                filteredNews = allNews.filter(n => {
+
+                    return n.categoria === categoryName;
+
+                });
+
+            }
+
+
+
+            currentPage = 1;
+
+            document.getElementById('global-counter').textContent = `${filteredNews.length} noticias (${isCurrentlyFiltered ? 'Reset' : categoryName})`;
+
+            updatePaginationLocal();
+
+            renderNews(getNewsPage(currentPage));
+
+            renderHeadlines(filteredNews);
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+
+
+            // Resaltar el elemento seleccionado (o quitar el resaltado)
+
+            document.querySelectorAll('.category-item').forEach(item => {
+
+                item.classList.remove('ring-2', 'ring-primary-blue');
+
+            });
+
+            if (!isCurrentlyFiltered) {
+
+                const categoryId = CATEGORIES_MAP[categoryName]?.id;
+
+                const selectedItem = document.querySelector(`.category-item[data-category="${categoryId}"]`);
+
+                if (selectedItem) selectedItem.classList.add('ring-2', 'ring-primary-blue');
+
+            }
+
+        }
+
+
+
+        function applyFilters() {
+
+            const pais = filterPais.value;
+
+            const fuente = filterPortal.value;
+
+            const searchTerm = searchInput.value.toLowerCase();
+
+
+
+            const inicioStr = filterFechaInicio.value;
+
+            const finStr = filterFechaFin.value;
+
+
+
+            let fechaInicioFiltro = inicioStr ? new Date(inicioStr + 'T00:00:00Z') : null;
+
+            let fechaFinFiltro = finStr ? new Date(finStr + 'T23:59:59Z') : null;
+
+
+
+            filteredNews = allNews.filter(n => {
+
+                let pasaFiltroFecha = true;
+
+                const noticiaTiempo = n.dateObject.getTime();
+
+
+
+                // Filtro por Fecha
+
+                if (fechaInicioFiltro && noticiaTiempo < fechaInicioFiltro.getTime()) {
+
+                    pasaFiltroFecha = false;
+
+                }
+
+                if (fechaFinFiltro && noticiaTiempo > fechaFinFiltro.getTime()) {
+
+                    pasaFiltroFecha = false;
+
+                }
+
+
+
+                // Combinar Filtros
+
+                return pasaFiltroFecha &&
+
+                    (!pais || n.pais === pais) &&
+
+                    (!fuente || n.fuente === fuente) &&
+
+                    (
+
+                        (n.titulo || '').toLowerCase().includes(searchTerm) ||
+
+                        (n.resumen || '').toLowerCase().includes(searchTerm)
+
+                    );
+
+            });
+
+
+
+            currentPage = 1;
+
+            document.getElementById('global-counter').textContent = `${filteredNews.length} noticias (filtradas)`;
+
+            updatePaginationLocal();
+
+            renderNews(getNewsPage(currentPage));
+
+            renderHeadlines(filteredNews);
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+        }
+
+
+
+        function resetFilters() {
+
+            if (filterPais) filterPais.value = '';
+
+            if (filterPortal) filterPortal.value = '';
+
+            if (searchInput) searchInput.value = '';
+
+
+
+            // Restablecer Fechas
+
+            if (filterFechaInicio) filterFechaInicio.value = '2025-09-11';
+
+            if (filterFechaFin) filterFechaFin.value = '2025-11-25';
+
+
+
+            filteredNews = [...allNews];
+
+            document.getElementById('global-counter').textContent = `${allNews.length} noticias`;
+
+            currentPage = 1;
+
+            updatePaginationLocal();
+
+            renderNews(getNewsPage(currentPage));
+
+            renderHeadlines(filteredNews);
+
+        }
+
+
+
+        function getNewsPage(page) {
+
+            const start = (page - 1) * ITEMS_PER_PAGE;
+
+            return filteredNews.slice(start, start + ITEMS_PER_PAGE);
+
+        }
+
+
+
+        function updatePaginationLocal() {
+
+            const maxPage = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
+
+            const controls = document.getElementById("pagination-controls");
+
+
+
+            if (controls) {
+
+                if (maxPage <= 1) {
+
+                    controls.classList.add("hidden");
+
+                } else {
+
+                    controls.classList.remove("hidden");
+
+                }
+
+            }
+
+
+
+            const pageIndicator = document.getElementById("page-indicator");
+
+            if (pageIndicator) pageIndicator.textContent = `Página ${currentPage} de ${maxPage}`;
+
+
+
+            const prevBtn = document.getElementById("prev-page-btn");
+
+            if (prevBtn) prevBtn.disabled = currentPage === 1;
+
+
+
+            const nextBtn = document.getElementById("next-page-btn");
+
+            if (nextBtn) nextBtn.disabled = currentPage >= maxPage;
+
+        }
+
+
+
+        window.changePage = (dir) => {
+
+            const maxPage = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
+
+            if (dir === "next" && currentPage < maxPage) currentPage++;
+
+            if (dir === "prev" && currentPage > 1) currentPage--;
+
+
+
+            renderNews(getNewsPage(currentPage));
+
+            updatePaginationLocal();
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+        };
+
+
+
+        // --- Funciones de Renderizado ---
+
+
+
+        function renderCategories() {
+
+            const container = document.getElementById('categories-container');
+
+            if (!container) return;
+
+
+
+            container.innerHTML = '';
+
+
+
+            // Obtener solo las categorías presentes en los datos actuales
+
+            const visibleCategories = getUniqueCategories(allNews);
+
+
+
+            visibleCategories.forEach(category => {
+
+                const categoryElement = document.createElement('a');
+
+                categoryElement.href = '#';
+
+                categoryElement.className = `flex flex-col items-center p-3 rounded-xl bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition duration-200 ring-1 ring-gray-200 dark:ring-gray-700 category-item`;
+
+                categoryElement.setAttribute('data-category', category.id);
+
+
+
+                categoryElement.innerHTML = `
+
+                <div class="w-12 h-12 mb-2 bg-${category.color}-100 dark:bg-${category.color}-900 text-${category.color}-600 dark:text-${category.color}-400 rounded-full flex items-center justify-center text-2xl">
+
+                    ${category.icon}
+
+                </div>
+
+                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">${category.name}</span>
+
+            `;
+
+
+
+                categoryElement.addEventListener('click', (e) => {
+
+                    e.preventDefault();
+
+                    filterByCategory(category.name);
+
+                });
+
+
+
+                container.appendChild(categoryElement);
+
+            });
+
+        }
+
+
+
+        function renderHeadlines(newsItems) {
+
+            const headlines = newsItems.slice(0, 8);
+
+            let html = '';
+
+
+
+            headlines.forEach(n => {
+
+                const formatted = n.dateObject.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+
+                const isFavorited = isFavorite(n.id);
+
+                const favoriteIconHtml = getFavoriteIconHTML(isFavorited);
+
+
+
+                html += `
+
+                <article class="flex space-x-3 bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md ring-1 ring-gray-200 dark:ring-gray-700 hover:shadow-lg transition duration-200 relative">
+
+                    <img src="${n.imagen}" alt="Headline" class="w-16 h-16 object-cover rounded-lg">
+
+                    <div class="flex-1">
+
+                        <a href="${n.enlace}" target="_blank" class="text-xs font-semibold text-gray-900 dark:text-gray-100 leading-tight hover:text-primary-blue line-clamp-2 block">
+
+                            ${n.titulo}
+
+                        </a>
+
+                        <div class="flex items-center space-x-2 mt-1 text-xs">
+
+                            <span class="px-2 py-0.5 bg-primary-blue/10 text-primary-blue dark:bg-primary-blue/20 rounded font-medium">${n.fuente || 'Fuente'}</span>
+
+                            <span class="text-gray-500 dark:text-gray-400">${formatted}</span>
+
+                        </div>
+
+                    </div>
+
+                    <button
+
+                        class="favorite-btn absolute top-2 right-2 p-1 bg-white/90 dark:bg-gray-900/90 rounded-full backdrop-blur-sm shadow-md hover:scale-110 transition-transform duration-200"
+
+                        data-news-id="${n.id}"
+
+                        onclick="handleFavoriteClick('${n.id}')"
+
+                    >
+
+                        <div class="w-4 h-4">
+
+                            ${favoriteIconHtml}
+
+                        </div>
+
+                    </button>
+
+                </article>
+
+            `;
+
+            });
+
+
+
+            headlinesContainer.innerHTML = html;
+
+        }
+
+
+
+        function renderNews(newsItems) {
+
+            if (newsItems.length === 0) {
+
+                newsGrid.innerHTML = '<p class="col-span-4 text-center py-10 text-gray-500">Sin resultados.</p>';
+
+                return;
+
+            }
+
+
+
+            let html = '';
+
+            newsItems.forEach(n => {
+
+                html += renderNewsCard(n);
+
+            });
+
+            newsGrid.innerHTML = html;
+
+        }
+
+
+
+        // --- Event Listeners y Lógica de Usuario ---
+
+
+
+        searchInput.addEventListener('keyup', applyFilters);
+
+        applyFiltersBtn.addEventListener('click', applyFilters);
+
+        resetFiltersBtn.addEventListener('click', resetFilters);
+
+
+
+        // Dark Mode (Mantenido)
+
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+        const updateIcon = () => {
+
+            darkModeToggle.innerHTML = document.documentElement.classList.contains('dark') ? '🌙' : '☀️';
+
+        };
+
+        updateIcon();
+
+        darkModeToggle.addEventListener('click', () => {
+
+            const isDark = document.documentElement.classList.toggle('dark');
+
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            updateIcon();
+
+        });
+
+
+
+        // User Management (Sistema Local - Mantenido)
+
+        function switchVisualPlan(plan) {
+
+            const body = document.body;
+
+            if (plan === 'premium') {
+
+                body.classList.remove('plan-free');
+
+                body.classList.add('plan-premium');
+
+            } else {
+
+                body.classList.remove('plan-premium');
+
+                body.classList.add('plan-free');
+
+            }
+
+        }
+
+
+
+        window.toggleUserDropdown = (e) => {
+
+            e.stopPropagation();
+
+            const menu = document.getElementById('user-dropdown-menu');
+
+            if (menu) menu.classList.toggle('hidden');
+
+        };
+
+
+
+        window.closeDropdowns = () => {
+
+            const menu = document.getElementById('user-dropdown-menu');
+
+            if (menu && !menu.classList.contains('hidden')) {
+
+                menu.classList.add('hidden');
+
+            }
+
+        };
+
+
+
+        function updateUIForUser() {
+
+            const authActions = document.getElementById('auth-actions');
+
+            authActions.innerHTML = '';
+
+
+
+            if (currentUser) {
+
+                const isAdmin = currentUser.email === 'admin@portal.com';
+
+                const isPremium = currentUser.is_premium || isAdmin;
+
+
+
+                switchVisualPlan(isPremium ? 'premium' : 'free');
+
+
+
+                const userName = currentUser.name || currentUser.email.split('@')[0];
+
+                document.getElementById('saludo').textContent = `¡Hola, ${userName}!`;
+
+
+
+                // Controla la visibilidad del link Dashboard
+
+                updateAdminVisibility(isAdmin);
+
+
+
+                loadUserFavorites().then(() => {
+
+                    // Actualizar contador después de cargar favoritos
+
+                    updateFavoritesCounter();
+
+                    // Re-renderiza la vista actual
+
+                    const currentHash = window.location.hash.substring(1) || 'home';
+
+                    if (currentHash === 'favorites') {
+
+                        renderFavoritesPage();
+
+                    } else {
+
+                        renderNews(getNewsPage(currentPage));
+
+                        renderHeadlines(filteredNews);
+
+                    }
+
+                });
+
+
+
+                // ⭐️ ESTE BLOQUE SE EJECUTA SIEMPRE QUE HAYA UN USUARIO (Premium o Gratuito)
+
+                const userAvatar = currentUser.avatar || '👤';
+
+                authActions.innerHTML = `
+
+            <div class="relative">
+
+                <button onclick="toggleUserDropdown(event)" class="flex items-center focus:outline-none">
+
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-blue to-neon-400 flex items-center justify-center text-2xl">
+
+                        ${userAvatar}
+
+                    </div>
+
+                </button>
+
+                
+
+                <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 hidden z-50">
+
+                    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+
+                        <p class="text-sm font-bold text-gray-800 dark:text-white truncate">${currentUser.email}</p>
+
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${isPremium ? '👑 Premium' : 'Plan Gratuito'}</p>
+
+                    </div>
+
+                    <a href="#" onclick="openProfileModal(); return false;" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Mi Perfil</a>
+
+                    <a href="#" onclick="openPricingModal()" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Planes</a>
+
+                    <div class="border-t border-gray-200 dark:border-gray-700"></div>
+
+                    
+
+                    <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold rounded-b-xl">Cerrar Sesión</button>
+
+                    
+
+                </div>
+
+            </div>
+
+        `;
+
+
+
+                // ⭐️ CRÍTICO: Re-adjuntar el listener después de inyectar el HTML
+
+                document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+
+
+            } else {
+
+                // Lógica para usuarios NO logueados
+
+                switchVisualPlan('free');
+
+                document.getElementById('saludo').textContent = '¡Bienvenido!';
+
+                authActions.innerHTML = `<button onclick="showAuthModal(false)" class="text-sm font-bold text-primary-blue hover:underline">Ingresar</button>`;
+
+
+
+                // Asegurar que el Dashboard esté oculto si no hay usuario
+
+                updateAdminVisibility(false);
+
+            }
+
+
+
+            // Cargar datos y total
+
+            fetchTotalCount();
+
+            loadAllNews();
+
+        }
+
+
+
+        // Función auxiliar para mostrar el mensaje de restricción
+
+        function renderPaywall(featureName, message) {
+
+            return `
+
+        <div class="flex flex-col items-center justify-center min-h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-10 mt-8">
+
+            <svg class="w-16 h-16 text-yellow-500 mb-4" fill="currentColor" viewBox="0 0 24 24">
+
+                <path d="M12 2.25c-5.38 0-9.75 4.37-9.75 9.75S6.62 21.75 12 21.75s9.75-4.37 9.75-9.75S17.38 2.25 12 2.25zm0 18A8.25 8.25 0 1112 3.75a8.25 8.25 0 010 16.5zm-1.5-6.75h3v-1.5h-3v1.5zm0-3h3V7.5h-3v1.5z"/>
+
+            </svg>
+
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">${featureName} - Exclusivo Premium</h3>
+
+            <p class="text-center text-lg text-gray-600 dark:text-gray-400 max-w-md mb-6">${message}</p>
+
+            <button onclick="openPricingModal()" class="bg-primary-blue hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300">
+
+                ¡Actualizar a Premium!
+
+            </button>
+
+        </div>
+
+    `;
+
+        }
+
+
+
+        // Función principal para renderizar la página de favoritos
+
+        function renderFavoritesPage() {
+
+            const favoritesContainer = document.getElementById('favorite-news-container');
+
+            const paywall = document.getElementById('favorites-paywall');
+
+            const favoritesTotal = document.getElementById('favorites-total');
+
+
+
+            favoritesContainer.innerHTML = '';
+
+            paywall.classList.add('hidden');
+
+
+
+            // Actualizar contador en el header de favoritos
+
+            if (favoritesTotal) {
+
+                favoritesTotal.textContent = `${userFavorites.length} favorito${userFavorites.length !== 1 ? 's' : ''} guardado${userFavorites.length !== 1 ? 's' : ''}`;
+
+            }
+
+
+
+            // 1. Verificar sesión
+
+            if (!currentUser) {
+
+                paywall.innerHTML = renderPaywall('Favoritos', '¡Inicia sesión para guardar tus noticias favoritas!');
+
+                paywall.classList.remove('hidden');
+
+                return;
+
+            }
+
+
+
+            const isAdmin = currentUser.email === 'admin@portal.com';
+
+            const isPremium = currentUser.is_premium || isAdmin;
+
+
+
+            // 2. ⭐️ RESTRICCIÓN PREMIUM (Check principal)
+
+            if (!isPremium) {
+
+                paywall.innerHTML = renderPaywall('Favoritos', 'Esta es una característica exclusiva de nuestro plan **Premium**. ¡Actualiza tu plan para guardar y ver tus noticias favoritas!');
+
+                paywall.classList.remove('hidden');
+
+                return;
+
+            }
+
+
+
+            // 3. Renderizar contenido (solo si es Premium)
+
+            if (userFavorites.length === 0) {
+
+                favoritesContainer.innerHTML = `
+
+            <div class="col-span-full text-center py-20 bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+
+                <svg class="w-20 h-20 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+
+                    </path>
+
+                </svg>
+
+                <p class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Aún no tienes favoritos</p>
+
+                <p class="text-gray-500 dark:text-gray-400 mb-4">Presiona el corazón ❤️ en cualquier noticia para añadirla a esta lista</p>
+
+                <a href="#home" class="inline-block bg-primary-blue hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg transition">
+
+                    Explorar Noticias
+
+                </a>
+
+            </div>
+
+        `;
+
+                return;
+
+            }
+
+
+
+            // Obtener las noticias completas a partir de los IDs guardados
+
+            const favoriteNews = userFavorites
+
+                .map(id => allNews.find(news => news.id === id))
+
+                .filter(news => news !== undefined);
+
+
+
+            if (favoriteNews.length === 0) {
+
+                favoritesContainer.innerHTML = `
+
+            <div class="col-span-full text-center py-20 bg-white dark:bg-gray-800 rounded-xl">
+
+                <p class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Las noticias guardadas ya no están disponibles</p>
+
+                <p class="text-gray-500 dark:text-gray-400">Puede que algunas noticias hayan sido eliminadas del sistema</p>
+
+            </div>
+
+        `;
+
+                return;
+
+            }
+
+
+
+            const newsHtml = favoriteNews.map(renderNewsCard).join('');
+
+            favoritesContainer.innerHTML = newsHtml;
+
+        }
+
+
+
+        function handleLogout() {
+
+            currentUser = null;
+
+            localStorage.removeItem('newsPortalUser');
+
+            updateUIForUser();
+
+            window.location.reload();
+
+        }
+
+
+
+        // Modals (Mantenido)
+
+        window.openPricingModal = () => {
+
+            document.getElementById('pricing-modal').classList.remove('hidden');
+
+            document.getElementById('pricing-modal').classList.add('flex');
+
+        };
+
+
+
+        window.closePricingModal = () => {
+
+            document.getElementById('pricing-modal').classList.add('hidden');
+
+            document.getElementById('pricing-modal').classList.remove('flex');
+
+        };
+
+
+
+        window.openPaymentModal = (plan, amount) => {
+
+            closePricingModal();
+
+            document.getElementById('payment-plan-name').innerText = plan;
+
+            document.getElementById('payment-amount').innerText = `S/${amount}`;
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+
+            document.getElementById('payment-modal').classList.add('flex');
+
+            switchPaymentMethod('yape');
+
+        };
+
+
+
+        window.closePaymentModal = () => {
+
+            document.getElementById('payment-modal').classList.add('hidden');
+
+            document.getElementById('payment-modal').classList.remove('flex');
+
+        };
+
+
+
+        window.switchPaymentMethod = (m) => {
+
+            ['yape', 'card'].forEach(x => document.getElementById(`method-${x}`).classList.add('hidden'));
+
+            document.getElementById(`method-${m}`).classList.remove('hidden');
+
+            document.getElementById('tab-yape').className = m == 'yape' ? 'flex-1 py-2 font-bold border-b-2 border-yape text-yape' : 'flex-1 py-2 text-gray-500';
+
+            document.getElementById('tab-card').className = m == 'card' ? 'flex-1 py-2 font-bold border-b-2 border-gray-800 text-black dark:text-white' : 'flex-1 py-2 text-gray-500';
+
+        };
+
+
+
+        window.processPayment = () => {
+
+            if (!currentUser) {
+
+                alert("Inicia sesión primero");
+
+                return;
+
+            }
+
+            closePaymentModal();
+
+            document.getElementById('processing-modal').classList.remove('hidden');
+
+            document.getElementById('processing-modal').classList.add('flex');
+
+            document.getElementById('processing-step').classList.remove('hidden');
+
+            document.getElementById('success-step').classList.add('hidden');
+
+
+
+            setTimeout(() => {
+
+                currentUser.is_premium = true;
+
+                localStorage.setItem('newsPortalUser', JSON.stringify(currentUser));
+
+                document.getElementById('processing-step').classList.add('hidden');
+
+                document.getElementById('success-step').classList.remove('hidden');
+
+            }, 3000);
+
+        };
+
+
+
+        window.finishPaymentFlow = () => {
+
+            window.location.reload();
+
+        };
+
+        // 👤 FUNCIONES DEL MODAL DE PERFIL
+
+        let selectedAvatar = '👤'; // Avatar por defecto
+
+        // Abrir modal de perfil
+        window.openProfileModal = () => {
+            if (!currentUser) {
+                showAuthModal(false);
+                return;
+            }
+
+            // Cargar datos del usuario actual
+            const users = getRegisteredUsers();
+            const user = users.find(u => u.email === currentUser.email);
+
+            // Cargar información en el modal
+            document.getElementById('profile-header-name').textContent = currentUser.name || currentUser.email.split('@')[0];
+            document.getElementById('profile-header-email').textContent = currentUser.email;
+            document.getElementById('profile-email-display').textContent = currentUser.email;
+            document.getElementById('profile-name-input').value = currentUser.name || currentUser.email.split('@')[0];
+
+            // Cargar avatar
+            selectedAvatar = currentUser.avatar || '👤';
+            document.getElementById('profile-avatar-large').textContent = selectedAvatar;
+
+            // Actualizar indicador visual del avatar seleccionado
+            updateAvatarSelection(selectedAvatar);
+
+            // Cargar estado de suscripción
+            const isPremium = currentUser.is_premium || false;
+            document.getElementById('profile-plan-status').textContent = isPremium ? '👑 Plan Premium' : 'Plan Gratuito';
+
+            // Mostrar modal
+            document.getElementById('profile-modal').classList.remove('hidden');
+            document.getElementById('profile-modal').classList.add('flex');
+        };
+
+        // Cerrar modal de perfil
+        window.closeProfileModal = () => {
+            document.getElementById('profile-modal').classList.add('hidden');
+            document.getElementById('profile-modal').classList.remove('flex');
+
+            // Ocultar mensaje de guardado si estaba visible
+            document.getElementById('profile-save-message').classList.add('hidden');
+        };
+
+        // Seleccionar avatar
+        window.selectAvatar = (emoji) => {
+            selectedAvatar = emoji;
+            document.getElementById('profile-avatar-large').textContent = emoji;
+            updateAvatarSelection(emoji);
+        };
+
+        // Actualizar indicador visual del avatar seleccionado
+        function updateAvatarSelection(selectedEmoji) {
+            document.querySelectorAll('.avatar-option').forEach(btn => {
+                if (btn.textContent === selectedEmoji) {
+                    btn.classList.add('border-primary-blue', 'bg-primary-blue/20', 'dark:bg-primary-blue/30');
+                } else {
+                    btn.classList.remove('border-primary-blue', 'bg-primary-blue/20', 'dark:bg-primary-blue/30');
+                }
+            });
+        }
+
+        // Guardar cambios del perfil
+        window.saveProfileChanges = () => {
+            if (!currentUser) return;
+
+            const newName = document.getElementById('profile-name-input').value.trim();
+
+            if (!newName) {
+                alert('El nombre de usuario no puede estar vacío');
+                return;
+            }
+
+            // Actualizar currentUser
+            currentUser.name = newName;
+            currentUser.avatar = selectedAvatar;
+
+            // Actualizar en localStorage (sesión actual)
+            localStorage.setItem('newsPortalUser', JSON.stringify(currentUser));
+
+            // Actualizar en la lista de usuarios registrados
+            const users = getRegisteredUsers();
+            const userIndex = users.findIndex(u => u.email === currentUser.email);
+
+            if (userIndex !== -1) {
+                users[userIndex].name = newName;
+                users[userIndex].avatar = selectedAvatar;
+                saveRegisteredUsers(users);
+            }
+
+            // Actualizar UI del header
+            document.getElementById('profile-header-name').textContent = newName;
+
+            // Mostrar mensaje de éxito
+            const successMsg = document.getElementById('profile-save-message');
+            successMsg.classList.remove('hidden');
+
+            setTimeout(() => {
+                successMsg.classList.add('hidden');
+            }, 3000);
+
+            // Actualizar UI general
+            updateUIForUser();
+        };
+
+        // 📊 FUNCIONES DEL DASHBOARD DE ADMINISTRADOR
+
+        function loadAdminDashboard() {
+            console.log('📊 loadAdminDashboard called');
+            console.log('allNews exists?', typeof allNews !== 'undefined');
+            console.log('allNews length:', allNews ? allNews.length : 0);
+
+            if (!allNews || allNews.length === 0) {
+                console.warn('No hay noticias cargadas para el dashboard');
+                // Mostrar mensaje en el dashboard
+                document.getElementById('kpi-total-news').textContent = '0';
+                document.getElementById('kpi-total-sources').textContent = '0';
+                document.getElementById('kpi-news-today').textContent = '0';
+                document.getElementById('kpi-growth').textContent = '0%';
+                return;
+            }
+
+            // Si existe la función updateDashboard de dashboard.js, usarla
+            if (typeof window.updateDashboard === 'function') {
+                console.log('✅ Using dashboard.js updateDashboard');
+                window.updateDashboard(allNews);
+            } else {
+                console.log('⚠️ Using inline dashboard functions');
+                // Calcular KPIs
+                calculateKPIs();
+
+                // Renderizar gráficos
+                renderSourcesChart();
+                renderCategoriesChart();
+
+                // Renderizar tabla de tiempos
+                renderUpdateTimeTable();
+
+                // Renderizar nube de palabras
+                renderWordCloud();
+            }
+        }
+
+        function calculateKPIs() {
+            // 1. Total de noticias
+            const totalNews = allNews.length;
+            document.getElementById('kpi-total-news').textContent = totalNews.toLocaleString();
+
+            // 2. Total de fuentes únicas
+            const sources = new Set(allNews.map(n => n.source));
+            document.getElementById('kpi-total-sources').textContent = sources.size;
+
+            // 3. Noticias de hoy
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const newsToday = allNews.filter(n => {
+                const newsDate = new Date(n.published_at);
+                newsDate.setHours(0, 0, 0, 0);
+                return newsDate.getTime() === today.getTime();
+            }).length;
+            document.getElementById('kpi-news-today').textContent = newsToday.toLocaleString();
+
+            // 4. Crecimiento vs ayer
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const newsYesterday = allNews.filter(n => {
+                const newsDate = new Date(n.published_at);
+                newsDate.setHours(0, 0, 0, 0);
+                return newsDate.getTime() === yesterday.getTime();
+            }).length;
+
+            const growth = newsYesterday > 0
+                ? ((newsToday - newsYesterday) / newsYesterday * 100).toFixed(1)
+                : (newsToday > 0 ? 100 : 0);
+
+            const growthElement = document.getElementById('kpi-growth');
+            growthElement.textContent = `${growth > 0 ? '+' : ''}${growth}%`;
+            growthElement.className = growth >= 0
+                ? 'text-3xl font-black text-green-600 dark:text-green-400 mt-1'
+                : 'text-3xl font-black text-red-600 dark:text-red-400 mt-1';
+        }
+
+        function renderSourcesChart() {
+            const sourcesCount = {};
+            allNews.forEach(news => {
+                const source = news.source || 'Desconocida';
+                sourcesCount[source] = (sourcesCount[source] || 0) + 1;
+            });
+
+            // Ordenar por cantidad (top 10)
+            const sortedSources = Object.entries(sourcesCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const maxCount = Math.max(...sortedSources.map(s => s[1]));
+
+            const chartHtml = sortedSources.map(([source, count]) => {
+                const percentage = (count / maxCount) * 100;
+                const barColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+
+                return `
+                    <div class="mb-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium text-gray-700 dark:text-gray-300 truncate">${source}</span>
+                            <span class="font-bold text-gray-900 dark:text-white">${count}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500"
+                                 style="width: ${percentage}%; background: linear-gradient(90deg, ${barColor}, ${barColor}dd);"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('chart-sources').innerHTML = chartHtml;
+        }
+
+        function renderCategoriesChart() {
+            const categoriesCount = {};
+            allNews.forEach(news => {
+                const category = news.category || 'General';
+                categoriesCount[category] = (categoriesCount[category] || 0) + 1;
+            });
+
+            const sortedCategories = Object.entries(categoriesCount)
+                .sort((a, b) => b[1] - a[1]);
+
+            const maxCount = Math.max(...sortedCategories.map(c => c[1]));
+
+            const categoryColors = {
+                'General': '#3b82f6',
+                'Actualidad': '#10b981',
+                'Deportes': '#ef4444',
+                'Economía': '#f59e0b',
+                'Tecnología': '#8b5cf6',
+                'Cultura': '#ec4899',
+                'Ciencia': '#6366f1',
+                'Política': '#64748b'
+            };
+
+            const chartHtml = sortedCategories.map(([category, count]) => {
+                const percentage = (count / maxCount) * 100;
+                const barColor = categoryColors[category] || '#6b7280';
+
+                return `
+                    <div class="mb-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">${category}</span>
+                            <span class="font-bold text-gray-900 dark:text-white">${count}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500"
+                                 style="width: ${percentage}%; background-color: ${barColor};"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('chart-categories').innerHTML = chartHtml;
+        }
+
+        function renderUpdateTimeTable() {
+            const sourcesTimes = {};
+
+            allNews.forEach(news => {
+                const source = news.source || 'Desconocida';
+                if (!sourcesTimes[source]) {
+                    sourcesTimes[source] = {
+                        lastUpdate: new Date(news.published_at),
+                        count: 0,
+                        totalTime: 0
+                    };
+                }
+
+                const newsDate = new Date(news.published_at);
+                if (newsDate > sourcesTimes[source].lastUpdate) {
+                    sourcesTimes[source].lastUpdate = newsDate;
+                }
+                sourcesTimes[source].count++;
+            });
+
+            const tableRows = Object.entries(sourcesTimes)
+                .sort((a, b) => b[1].lastUpdate - a[1].lastUpdate)
+                .slice(0, 10)
+                .map(([source, data]) => {
+                    const lastUpdate = data.lastUpdate;
+                    const now = new Date();
+                    const hoursAgo = Math.floor((now - lastUpdate) / (1000 * 60 * 60));
+                    const minutesAgo = Math.floor((now - lastUpdate) / (1000 * 60)) % 60;
+
+                    const timeAgo = hoursAgo > 0
+                        ? `Hace ${hoursAgo}h ${minutesAgo}m`
+                        : `Hace ${minutesAgo}m`;
+
+                    // Promedio simulado (cada fuente actualiza cada X horas)
+                    const avgHours = Math.floor(Math.random() * 6) + 1;
+                    const avgMinutes = Math.floor(Math.random() * 60);
+
+                    return `
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <td class="px-4 py-3 text-gray-900 dark:text-white font-medium">${source}</td>
+                            <td class="px-4 py-3 text-gray-600 dark:text-gray-400">${timeAgo}</td>
+                            <td class="px-4 py-3 text-gray-900 dark:text-white font-bold">${avgHours}h ${avgMinutes}m</td>
+                        </tr>
+                    `;
+                }).join('');
+
+            document.getElementById('update-time-tbody').innerHTML = tableRows;
+        }
+
+        function renderWordCloud() {
+            // Extraer palabras de títulos (excluyendo palabras comunes)
+            const stopWords = new Set(['el', 'la', 'de', 'en', 'y', 'a', 'los', 'las', 'del', 'un', 'una', 'por', 'para', 'con', 'que', 'es', 'su', 'al', 'lo', 'como', 'más', 'o', 'pero', 'se', 'no', 'sobre', 'entre', 'sin', 'the', 'and', 'of', 'to', 'in', 'a', 'is', 'for', 'on', 'with']);
+
+            const wordCount = {};
+
+            allNews.forEach(news => {
+                // Validar que exista el título
+                if (!news.title || typeof news.title !== 'string') return;
+
+                const words = news.title.toLowerCase()
+                    .replace(/[^\wáéíóúñü\s]/g, '')
+                    .split(/\s+/);
+
+                words.forEach(word => {
+                    if (word.length > 3 && !stopWords.has(word)) {
+                        wordCount[word] = (wordCount[word] || 0) + 1;
+                    }
+                });
+            });
+
+            // Top 30 palabras
+            const topWords = Object.entries(wordCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 30);
+
+            // Si no hay palabras, mostrar mensaje
+            if (topWords.length === 0) {
+                document.getElementById('word-cloud').innerHTML = '<p class="text-gray-500 dark:text-gray-400">No hay suficientes datos para generar la nube de palabras</p>';
+                return;
+            }
+
+            const maxCount = topWords[0][1];
+
+            const wordCloudHtml = topWords.map(([word, count]) => {
+                const size = 0.7 + (count / maxCount) * 1.5; // Entre 0.7rem y 2.2rem
+                const opacity = 0.6 + (count / maxCount) * 0.4; // Entre 0.6 y 1.0
+                const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#ef4444'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                return `
+                    <span class="inline-block px-2 py-1 rounded-lg transition-transform hover:scale-110 cursor-default"
+                          style="font-size: ${size}rem; opacity: ${opacity}; color: ${color}; font-weight: ${Math.floor(400 + (count / maxCount) * 400)};"
+                          title="${count} menciones">
+                        ${word}
+                    </span>
+                `;
+            }).join('');
+
+            document.getElementById('word-cloud').innerHTML = wordCloudHtml;
+        }
+
+        // 🔄 FUNCIONES DE SCRAPING MANUAL
+
+        // Definir lista de fuentes disponibles para scraping
+        const SCRAPING_SOURCES = [
+            { name: 'BBC Home', url: 'https://www.bbc.com/', country: 'UK', icon: '🇬🇧' },
+            { name: 'BBC News', url: 'https://www.bbc.com/news', country: 'UK', icon: '📰' },
+            { name: 'BBC Sport', url: 'https://www.bbc.com/sport', country: 'UK', icon: '⚽' },
+            { name: 'BBC Business', url: 'https://www.bbc.com/business', country: 'UK', icon: '💼' },
+            { name: 'Clarín', url: 'https://www.clarin.com/', country: 'Argentina', icon: '🇦🇷' },
+            { name: 'Clarín Último Momento', url: 'https://www.clarin.com/ultimo-momento', country: 'Argentina', icon: '⚡' },
+            { name: 'Clarín Política', url: 'https://www.clarin.com/politica', country: 'Argentina', icon: '🏛️' },
+            { name: 'Yahoo Noticias', url: 'https://es-us.noticias.yahoo.com/', country: 'Global', icon: '🌍' },
+            { name: 'El Mundo', url: 'https://www.elmundo.es/', country: 'España', icon: '🇪🇸' },
+            { name: 'El Mundo Últimas', url: 'https://www.elmundo.es/ultimas-noticias.html', country: 'España', icon: '📢' },
+            { name: 'Infobae Perú', url: 'https://www.infobae.com/peru/', country: 'Perú', icon: '🇵🇪' },
+            { name: 'Infobae México', url: 'https://www.infobae.com/mexico/', country: 'México', icon: '🇲🇽' },
+            { name: 'Infobae España', url: 'https://www.infobae.com/espana/', country: 'España', icon: '🇪🇸' },
+            { name: 'El Diario', url: 'https://www.eldiario.es/', country: 'España', icon: '📰' },
+            { name: 'El Diario Política', url: 'https://www.eldiario.es/politica/', country: 'España', icon: '🏛️' }
+        ];
+
+        // Abrir modal de scraping
+        window.openScrapingModal = () => {
+            document.getElementById('scraping-modal').classList.remove('hidden');
+            document.getElementById('scraping-modal').classList.add('flex');
+
+            // Resetear estados
+            document.getElementById('sources-list').classList.remove('hidden');
+            document.getElementById('scraping-status').classList.add('hidden');
+            document.getElementById('scraping-results').classList.add('hidden');
+
+            // Renderizar lista de fuentes
+            renderSourcesList();
+        };
+
+        // Cerrar modal de scraping
+        window.closeScrapingModal = () => {
+            document.getElementById('scraping-modal').classList.add('hidden');
+            document.getElementById('scraping-modal').classList.remove('flex');
+        };
+
+        // Renderizar lista de fuentes
+        function renderSourcesList() {
+            const sourcesList = document.getElementById('sources-list');
+
+            const sourcesHtml = SCRAPING_SOURCES.map((source, index) => `
+                <button onclick="startScraping('${source.name}', '${source.url}', '${source.country}')"
+                    class="group relative bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 rounded-xl p-4 text-left transition-all duration-200 hover:shadow-lg hover:scale-105">
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl">${source.icon}</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">${source.name}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${source.country}</p>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </button>
+            `).join('');
+
+            sourcesList.innerHTML = sourcesHtml;
+        }
+
+        // Iniciar scraping de una fuente específica
+        window.startScraping = async (sourceName, sourceUrl, sourceCountry) => {
+            // Ocultar lista y mostrar estado
+            document.getElementById('sources-list').classList.add('hidden');
+            document.getElementById('scraping-status').classList.remove('hidden');
+
+            // Actualizar texto
+            document.getElementById('scraping-status-text').textContent = `Scrapeando ${sourceName}...`;
+            document.getElementById('scraping-status-detail').textContent = 'Conectando con el servidor...';
+
+            // Simular progreso
+            let progress = 0;
+            const progressBar = document.getElementById('scraping-progress-bar');
+
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = `${progress}%`;
+            }, 500);
+
+            try {
+                // Llamar al backend para scrapear (simulado por ahora)
+                // En producción, esto llamaría a tu API de scraping
+                document.getElementById('scraping-status-detail').textContent = 'Extrayendo noticias...';
+
+                // Simulación: esperar 3 segundos
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                // Simular resultado
+                const newNewsCount = Math.floor(Math.random() * 20) + 5;
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
+                // Mostrar resultados
+                setTimeout(() => {
+                    document.getElementById('scraping-status').classList.add('hidden');
+                    document.getElementById('scraping-results').classList.remove('hidden');
+
+                    document.getElementById('scraping-results-text').innerHTML = `
+                        Se han agregado <span class="font-bold text-green-600 dark:text-green-400">${newNewsCount}</span> noticias nuevas de <strong>${sourceName}</strong>
+                    `;
+                }, 500);
+
+                // En producción real, aquí recargarías las noticias desde Supabase
+                // await loadNewsFromSupabase();
+
+            } catch (error) {
+                clearInterval(progressInterval);
+                console.error('Error en scraping:', error);
+
+                document.getElementById('scraping-status').classList.add('hidden');
+                document.getElementById('scraping-results').classList.remove('hidden');
+
+                document.getElementById('scraping-results-text').innerHTML = `
+                    <div class="text-red-600 dark:text-red-400">❌ Error al scrapear ${sourceName}. Por favor intenta nuevamente.</div>
+                `;
+            }
+        };
+
+        // Finalizar y cerrar modal
+        window.finishScraping = () => {
+            closeScrapingModal();
+            // Recargar la página actual
+            window.location.reload();
+        };
+
+        // 🌤️ WIDGET DE CLIMA
+
+        const PERU_DEPARTMENTS = {
+            'lima': 'Lima',
+            'arequipa': 'Arequipa',
+            'cusco': 'Cusco',
+            'puno': 'Puno',
+            'junin': 'Junín',
+            'lalibertad': 'La Libertad',
+            'piura': 'Piura',
+            'lambayeque': 'Lambayeque',
+            'loreto': 'Loreto',
+            'cajamarca': 'Cajamarca',
+            'ancash': 'Áncash',
+            'tacna': 'Tacna',
+            'ica': 'Ica',
+            'ucayali': 'Ucayali',
+            'tumbes': 'Tumbes',
+            'sanmartin': 'San Martín',
+            'moquegua': 'Moquegua',
+            'madrededios': 'Madre de Dios',
+            'huancavelica': 'Huancavelica',
+            'huanuco': 'Huánuco',
+            'apurimac': 'Apurímac',
+            'ayacucho': 'Ayacucho',
+            'amazonas': 'Amazonas',
+            'pasco': 'Pasco'
+        };
+
+        const COUNTRIES = {
+            'madrid': '🇪🇸 Madrid',
+            'buenosaires': '🇦🇷 Buenos Aires',
+            'mexicodf': '🇲🇽 Ciudad de México',
+            'santiago': '🇨🇱 Santiago',
+            'bogota': '🇨🇴 Bogotá',
+            'quito': '🇪🇨 Quito',
+            'lapaz': '🇧🇴 La Paz',
+            'saopaulo': '🇧🇷 São Paulo'
+        };
+
+        const WEATHER_COORDS = {
+            // Países
+            'madrid': { lat: 40.4168, lon: -3.7038 },
+            'buenosaires': { lat: -34.6037, lon: -58.3816 },
+            'mexicodf': { lat: 19.4326, lon: -99.1332 },
+            'santiago': { lat: -33.4489, lon: -70.6693 },
+            'bogota': { lat: 4.7110, lon: -74.0721 },
+            'quito': { lat: -0.1807, lon: -78.4678 },
+            'lapaz': { lat: -16.4897, lon: -68.1193 },
+            'saopaulo': { lat: -23.5505, lon: -46.6333 },
+            // Perú
+            'lima': { lat: -12.0464, lon: -77.0428 },
+            'arequipa': { lat: -16.4090, lon: -71.5375 },
+            'cusco': { lat: -13.5319, lon: -71.9675 },
+            'puno': { lat: -15.8402, lon: -70.0219 },
+            'junin': { lat: -11.1580, lon: -75.9920 },
+            'lalibertad': { lat: -8.1117, lon: -79.0288 },
+            'piura': { lat: -5.1945, lon: -80.6328 },
+            'lambayeque': { lat: -6.7011, lon: -79.9061 },
+            'loreto': { lat: -3.7491, lon: -73.2538 },
+            'cajamarca': { lat: -7.1611, lon: -78.5126 },
+            'ancash': { lat: -9.5251, lon: -77.5306 },
+            'tacna': { lat: -18.0066, lon: -70.2463 },
+            'ica': { lat: -14.0678, lon: -75.7286 },
+            'ucayali': { lat: -8.3791, lon: -74.5539 },
+            'tumbes': { lat: -3.5669, lon: -80.4515 },
+            'sanmartin': { lat: -6.4847, lon: -76.3650 },
+            'moquegua': { lat: -17.1933, lon: -70.9336 },
+            'madrededios': { lat: -12.5933, lon: -69.1892 },
+            'huancavelica': { lat: -12.7870, lon: -74.9760 },
+            'huanuco': { lat: -9.9305, lon: -76.2422 },
+            'apurimac': { lat: -13.6334, lon: -72.8814 },
+            'ayacucho': { lat: -13.1637, lon: -74.2236 },
+            'amazonas': { lat: -5.9978, lon: -77.6256 },
+            'pasco': { lat: -10.6796, lon: -76.2560 }
+        };
+
+        // Cambiar tipo de ubicación (Perú / Países)
+        window.changeLocationType = () => {
+            const type = document.getElementById('weather-location-type').value;
+            const locationSelect = document.getElementById('weather-location');
+
+            locationSelect.innerHTML = '';
+
+            const locations = type === 'peru' ? PERU_DEPARTMENTS : COUNTRIES;
+
+            Object.entries(locations).forEach(([key, name]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = name;
+                option.style.backgroundColor = '#1e40af'; // Azul oscuro
+                option.style.color = 'white';
+                locationSelect.appendChild(option);
+            });
+
+            // Cargar clima de la primera opción
+            loadWeather();
+        };
+
+        // Cargar datos del clima
+        window.loadWeather = async () => {
+            const locationKey = document.getElementById('weather-location').value;
+            const type = document.getElementById('weather-location-type').value;
+            const locationName = type === 'peru'
+                ? PERU_DEPARTMENTS[locationKey]
+                : COUNTRIES[locationKey];
+
+            const coords = WEATHER_COORDS[locationKey];
+
+            if (!coords) {
+                console.error('No se encontraron coordenadas para:', locationKey);
+                return;
+            }
+
+            // Actualizar nombre de ubicación
+            document.getElementById('weather-location-name').textContent = locationName;
+
+            // Mostrar estado de carga
+            document.getElementById('weather-temp').textContent = '--°C';
+            document.getElementById('weather-desc').textContent = 'Cargando...';
+
+            try {
+                // Llamar a la API de Open-Meteo
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const weather = data.current_weather;
+
+                // Actualizar temperatura
+                document.getElementById('weather-temp').textContent = `${Math.round(weather.temperature)}°C`;
+                document.getElementById('weather-feels').textContent = `${Math.round(weather.temperature)}°C`;
+                document.getElementById('weather-wind').textContent = `${Math.round(weather.windspeed)} km/h`;
+
+                // Mapear código de clima a descripción e icono
+                const weatherInfo = getWeatherInfo(weather.weathercode);
+                document.getElementById('weather-desc').textContent = weatherInfo.description;
+                document.getElementById('weather-icon').textContent = weatherInfo.icon;
+
+                // Cambiar gradiente según el clima
+                updateWeatherGradient(weather.weathercode);
+
+            } catch (error) {
+                console.error('Error al cargar el clima:', error);
+                document.getElementById('weather-desc').textContent = 'Error al cargar';
+            }
+        };
+
+        // Obtener info del clima según código
+        function getWeatherInfo(code) {
+            const weatherMap = {
+                0: { description: 'Cielo despejado', icon: '☀️' },
+                1: { description: 'Mayormente despejado', icon: '🌤️' },
+                2: { description: 'Parcialmente nublado', icon: '⛅' },
+                3: { description: 'Nublado', icon: '☁️' },
+                45: { description: 'Niebla', icon: '🌫️' },
+                48: { description: 'Niebla escarchada', icon: '🌫️' },
+                51: { description: 'Llovizna ligera', icon: '🌦️' },
+                61: { description: 'Lluvia ligera', icon: '🌧️' },
+                63: { description: 'Lluvia moderada', icon: '🌧️' },
+                65: { description: 'Lluvia fuerte', icon: '⛈️' },
+                80: { description: 'Chubascos', icon: '🌦️' },
+                95: { description: 'Tormentas', icon: '⛈️' }
+            };
+
+            return weatherMap[code] || { description: 'Clima variable', icon: '🌤️' };
+        }
+
+        // Actualizar gradiente según clima
+        function updateWeatherGradient(code) {
+            const weatherWidget = document.querySelector('.bg-gradient-to-br');
+
+            // Remover clases anteriores
+            weatherWidget.classList.remove('from-blue-500', 'to-cyan-600', 'from-gray-500', 'to-slate-600', 'from-indigo-500', 'to-blue-600', 'from-yellow-400', 'to-orange-500');
+
+            if (code >= 61 && code <= 95) {
+                // Lluvia/tormenta - gris
+                weatherWidget.classList.add('from-gray-500', 'to-slate-600');
+            } else if (code >= 2) {
+                // Nublado - azul oscuro
+                weatherWidget.classList.add('from-indigo-500', 'to-blue-600');
+            } else {
+                // Despejado - amarillo/naranja
+                weatherWidget.classList.add('from-yellow-400', 'to-orange-500');
+            }
+        }
+
+        // Inicializar widget de clima al cargar
+        if (document.getElementById('weather-location-type')) {
+            changeLocationType();
+        }
+
+
+
+        window.showAuthModal = (reg) => {
+
+            document.getElementById('auth-section').classList.remove('hidden');
+
+            document.getElementById('auth-section').classList.add('flex');
+
+            document.getElementById(reg ? 'login-form' : 'register-form').classList.add('hidden');
+
+            document.getElementById(reg ? 'register-form' : 'login-form').classList.remove('hidden');
+
+            document.getElementById('switch-to-login').classList.toggle('hidden', !reg);
+
+            document.getElementById('switch-to-register').classList.toggle('hidden', reg);
+
+        };
+
+
+
+        document.getElementById('switch-to-register').addEventListener('click', () => showAuthModal(true));
+
+        document.getElementById('switch-to-login').addEventListener('click', () => showAuthModal(false));
+
+
+
+        // 🔐 SISTEMA DE AUTENTICACIÓN LOCAL (localStorage)
+
+
+
+        // Helper: Obtener todos los usuarios registrados
+
+        function getRegisteredUsers() {
+
+            const users = localStorage.getItem('newsPortalUsers');
+
+            return users ? JSON.parse(users) : [];
+
+        }
+
+
+
+        // Helper: Guardar lista de usuarios
+
+        function saveRegisteredUsers(users) {
+
+            localStorage.setItem('newsPortalUsers', JSON.stringify(users));
+
+        }
+
+
+
+        // Helper: Mostrar mensaje de error en el formulario
+
+        function showFormError(formId, message) {
+
+            const form = document.getElementById(formId);
+
+            let errorDiv = form.querySelector('.form-error');
+
+
+
+            if (!errorDiv) {
+
+                errorDiv = document.createElement('div');
+
+                errorDiv.className = 'form-error bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl mb-4 text-sm';
+
+                form.insertBefore(errorDiv, form.firstChild);
+
+            }
+
+
+
+            errorDiv.textContent = message;
+
+            errorDiv.style.display = 'block';
+
+
+
+            setTimeout(() => {
+
+                errorDiv.style.display = 'none';
+
+            }, 4000);
+
+        }
+
+
+
+        // Helper: Mostrar mensaje de éxito
+
+        function showFormSuccess(formId, message) {
+
+            const form = document.getElementById(formId);
+
+            let successDiv = form.querySelector('.form-success');
+
+
+
+            if (!successDiv) {
+
+                successDiv = document.createElement('div');
+
+                successDiv.className = 'form-success bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded-xl mb-4 text-sm';
+
+                form.insertBefore(successDiv, form.firstChild);
+
+            }
+
+
+
+            successDiv.textContent = message;
+
+            successDiv.style.display = 'block';
+
+
+
+            setTimeout(() => {
+
+                successDiv.style.display = 'none';
+
+            }, 2000);
+
+        }
+
+
+
+        // 📝 LOGIN
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+
+            e.preventDefault();
+
+
+
+            const email = document.getElementById('login-email').value.trim();
+
+            const password = document.getElementById('login-password').value;
+
+
+
+            // Validaciones
+
+            if (!email) {
+
+                showFormError('login-form', 'Por favor ingresa tu email');
+
+                return;
+
+            }
+
+
+
+            if (!password) {
+
+                showFormError('login-form', 'Por favor ingresa tu contraseña');
+
+                return;
+
+            }
+
+
+
+            // Buscar usuario en la base de datos local
+
+            const users = getRegisteredUsers();
+
+            const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+
+
+            if (!user) {
+
+                showFormError('login-form', 'Email no registrado. Por favor crea una cuenta primero.');
+
+                return;
+
+            }
+
+
+
+            if (user.password !== password) {
+
+                showFormError('login-form', 'Contraseña incorrecta. Intenta nuevamente.');
+
+                return;
+
+            }
+
+
+
+            // Login exitoso
+
+            showFormSuccess('login-form', '¡Bienvenido de vuelta! 👋');
+
+
+
+            setTimeout(() => {
+
+                currentUser = {
+
+                    email: user.email,
+
+                    name: user.name || user.email.split('@')[0],
+
+                    is_premium: user.is_premium || false,
+
+                    created_at: user.created_at
+
+                };
+
+
+
+                localStorage.setItem('newsPortalUser', JSON.stringify(currentUser));
+
+                document.getElementById('auth-section').classList.add('hidden');
+
+                document.getElementById('login-form').reset();
+
+                updateUIForUser();
+
+                loadUserFavorites();
+
+            }, 1000);
+
+        });
+
+
+
+        // 📝 REGISTRO
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+
+            e.preventDefault();
+
+
+
+            const email = document.getElementById('register-email').value.trim();
+
+            const password = document.getElementById('register-password').value;
+
+
+
+            // Validaciones
+
+            if (!email) {
+
+                showFormError('register-form', 'Por favor ingresa tu email');
+
+                return;
+
+            }
+
+
+
+            // Validar formato de email
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailRegex.test(email)) {
+
+                showFormError('register-form', 'Por favor ingresa un email válido');
+
+                return;
+
+            }
+
+
+
+            if (!password) {
+
+                showFormError('register-form', 'Por favor ingresa una contraseña');
+
+                return;
+
+            }
+
+
+
+            if (password.length < 6) {
+
+                showFormError('register-form', 'La contraseña debe tener al menos 6 caracteres');
+
+                return;
+
+            }
+
+
+
+            // Verificar si el email ya está registrado
+
+            const users = getRegisteredUsers();
+
+            const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+
+
+            if (existingUser) {
+
+                showFormError('register-form', 'Este email ya está registrado. Por favor inicia sesión.');
+
+                return;
+
+            }
+
+
+
+            // Crear nuevo usuario
+
+            const newUser = {
+
+                email: email,
+
+                name: email.split('@')[0],
+
+                password: password, // En producción, esto debería estar hasheado
+
+                is_premium: false,
+
+                created_at: new Date().toISOString()
+
+            };
+
+
+
+            users.push(newUser);
+
+            saveRegisteredUsers(users);
+
+
+
+            // Registro exitoso
+
+            showFormSuccess('register-form', '¡Cuenta creada exitosamente! 🎉');
+
+
+
+            setTimeout(() => {
+
+                currentUser = {
+
+                    email: newUser.email,
+
+                    name: newUser.name,
+
+                    is_premium: false,
+
+                    created_at: newUser.created_at
+
+                };
+
+
+
+                localStorage.setItem('newsPortalUser', JSON.stringify(currentUser));
+
+                document.getElementById('auth-section').classList.add('hidden');
+
+                document.getElementById('register-form').reset();
+
+                updateUIForUser();
+
+                loadUserFavorites();
+
+            }, 1000);
+
+        });
+
+
+
+        // 🔄 FUNCIÓN PRINCIPAL DE NAVEGACIÓN (ÚNICA)
+        window.renderPage = function (pageId) {
+            console.log('🔄 renderPage called with:', pageId);
+
+            // Limpiar el hash (remover el #)
+            const cleanPageId = pageId.replace('#', '');
+
+            // Referencias a los contenidos
+            const mainContent = document.getElementById('main-content');
+            const favoritesContent = document.getElementById('favorites-content');
+            const adminContent = document.getElementById('admin-content');
+            const favoritesBtn = document.getElementById('favorites-btn-header');
+            const favoritesIcon = document.getElementById('favorites-icon-header');
+
+            console.log('📦 Elements found:', {
+                mainContent: !!mainContent,
+                favoritesContent: !!favoritesContent,
+                adminContent: !!adminContent,
+                pageRequested: cleanPageId
+            });
+
+            // Ocultar todos los contenidos
+            if (mainContent) mainContent.classList.add('hidden');
+            if (favoritesContent) favoritesContent.classList.add('hidden');
+            if (adminContent) adminContent.classList.add('hidden');
+
+            // Resetear estado de botones del sidebar
+            document.querySelectorAll('aside a').forEach(link => {
+                link.classList.remove('bg-primary-blue/10', 'text-primary-blue', 'bg-red-50', 'text-red-500');
+            });
+
+            switch (cleanPageId) {
+                case 'home':
+                case '':
+                    if (mainContent) mainContent.classList.remove('hidden');
+                    document.getElementById('nav-home')?.classList.add('bg-primary-blue/10', 'text-primary-blue');
+                    renderNews(getNewsPage(currentPage));
+                    renderHeadlines(filteredNews);
+                    if (favoritesBtn) favoritesBtn.classList.remove('favorites-btn-active');
+                    if (favoritesIcon) {
+                        favoritesIcon.classList.remove('text-red-500', 'fill-red-500');
+                        favoritesIcon.classList.add('fill-none');
+                    }
+                    break;
+
+                case 'favorites':
+                    console.log('❤️ Rendering favorites page');
+                    if (favoritesContent) {
+                        favoritesContent.classList.remove('hidden');
+                        console.log('✅ Favorites content shown');
+                    } else {
+                        console.error('❌ favoritesContent not found');
+                    }
+                    document.getElementById('nav-favorites')?.classList.add('bg-red-50', 'text-red-500');
+                    renderFavoritesPage();
+                    if (favoritesBtn) favoritesBtn.classList.add('favorites-btn-active');
+                    if (favoritesIcon) {
+                        favoritesIcon.classList.add('text-red-500', 'fill-red-500');
+                        favoritesIcon.classList.remove('fill-none');
+                    }
+                    break;
+
+                case 'configuracion':
+                case 'dashboard':
+                    // Verificar que el usuario es admin
+                    if (currentUser && currentUser.email === 'admin@portal.com') {
+                        if (adminContent) adminContent.classList.remove('hidden');
+                        document.getElementById('nav-configuracion')?.classList.add('bg-primary-blue/10', 'text-primary-blue');
+                        if (favoritesBtn) favoritesBtn.classList.remove('favorites-btn-active');
+                        if (favoritesIcon) {
+                            favoritesIcon.classList.remove('text-red-500', 'fill-red-500');
+                            favoritesIcon.classList.add('fill-none');
+                        }
+                        // Cargar datos del dashboard
+                        loadAdminDashboard();
+                    } else {
+                        // Si no es admin, redirigir a home
+                        window.location.hash = 'home';
+                        alert('⛔ Acceso denegado: Solo administradores pueden acceder a esta sección');
+                    }
+                    break;
+
+                default:
+                    if (mainContent) mainContent.classList.remove('hidden');
+                    if (favoritesBtn) favoritesBtn.classList.remove('favorites-btn-active');
+                    if (favoritesIcon) {
+                        favoritesIcon.classList.remove('text-red-500', 'fill-red-500');
+                        favoritesIcon.classList.add('fill-none');
+                    }
+                    break;
+            }
+        }
+        // 🚀 Inicializar la aplicación
+
+        updateUIForUser();
+
+        document.addEventListener('click', closeDropdowns);
+
+
+
+
+
+        // ⭐️ Event Listener para detectar cambios en el hash
+
+        window.addEventListener('hashchange', () => renderPage(window.location.hash));
+
+        window.addEventListener('load', () => {
+
+            // Inicializar la página en la carga
+
+            renderPage(window.location.hash || '#home');
+
+        });
+
+
+
+        // Asegúrate de que tu link del dashboard en el HTML apunte a #dashboard
+
+        // <a href="#dashboard" ... id="nav-dashboard">
+
+
+    </script>
+
+    <script src="js/dashboard.js"></script>
+    <script type="module" src="js/main.js"></script>
+
+    <script>
+        // Event listener para hash changes
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1) || 'home';
+            console.log('Hash changed to:', hash);
+            console.log('window.renderPage exists?', typeof window.renderPage);
+            if (typeof window.renderPage === 'function') {
+                window.renderPage(hash);
+            } else {
+                console.error('renderPage is not defined');
+            }
+        });
+
+        // Cargar página inicial
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const hash = window.location.hash.substring(1) || 'home';
+                console.log('Page loaded with hash:', hash);
+                if (typeof window.renderPage === 'function') {
+                    window.renderPage(hash);
+                } else {
+                    console.error('renderPage is not defined on load');
+                }
+            }, 100);
+        });
+
+        // Contar noticias por fuente
+        function getSourcesCount(noticias) {
+            const counter = {};
+
+            noticias.forEach(n => {
+                const fuente = n.fuente.trim();
+                counter[fuente] = (counter[fuente] || 0) + 1;
+            });
+
+            return counter;
+        }
+
+    </script>
+
+    <script src="//code.tidio.co/tjjsmlrj4dqqvxivnujmjeinjzzayqy4.js" async></script>
+
+
+    <script>
+        async function loadDashboard() {
+            try {
+                // Cambia por tu endpoint real
+                const res = await fetch("http://localhost:5000/news");
+                const data = await res.json();
+
+                // ---------------------------
+                //   1. KPIs (Totales)
+                //----------------------------
+                let totalNews = 0;
+                let totalSources = Object.keys(data).length;
+
+                const today = new Date().toISOString().split("T")[0];
+                let todayCount = 0;
+
+                Object.values(data).forEach(newsList => {
+                    totalNews += newsList.length;
+                    todayCount += newsList.filter(n => n.date === today).length;
+                });
+
+                document.getElementById("kpi-total-news").textContent = totalNews;
+                document.getElementById("kpi-total-sources").textContent = totalSources;
+                document.getElementById("kpi-news-today").textContent = todayCount;
+
+                // Crecimiento simple VS ayer
+                document.getElementById("kpi-growth").textContent =
+                    ((todayCount / (totalNews - todayCount + 1)) * 100).toFixed(1) + "%";
+
+                // ---------------------------
+                //   2. Gráfico Noticias por Fuente
+                //---------------------------
+                let sourceNames = Object.keys(data);
+                let sourceCounts = sourceNames.map(s => data[s].length);
+
+                new ApexCharts(document.querySelector("#chart-sources"), {
+                    series: [{
+                        name: "Noticias",
+                        data: sourceCounts
+                    }],
+                    chart: {
+                        type: "bar",
+                        height: 250
+                    },
+                    xaxis: {
+                        categories: sourceNames
+                    },
+                    colors: ["#3b82f6"]
+                }).render();
+
+                // ---------------------------
+                //   3. Categorías
+                //---------------------------
+                let categoryCount = {};
+
+                Object.values(data).forEach(newsList => {
+                    newsList.forEach(n => {
+                        if (!n.category) return;
+                        categoryCount[n.category] = (categoryCount[n.category] || 0) + 1;
+                    });
+                });
+
+                new ApexCharts(document.querySelector("#chart-categories"), {
+                    chart: { type: "bar", height: 250 },
+                    series: [{ data: Object.values(categoryCount) }],
+                    xaxis: { categories: Object.keys(categoryCount) }
+                }).render();
+
+                // ---------------------------
+                //   4. Tabla - Actualización
+                //---------------------------
+                const tbody = document.getElementById("update-time-tbody");
+                tbody.innerHTML = "";
+
+                Object.keys(data).forEach(source => {
+                    let lastDate = data[source][0]?.scraped_at || "—";
+                    let avg = "1"; // si no tienes dato, pongo fijo
+
+                    tbody.innerHTML += `
+                <tr>
+                    <td class="px-4 py-3">${source}</td>
+                    <td class="px-4 py-3">${lastDate}</td>
+                    <td class="px-4 py-3">2</td>
+                </tr>
+            `;
+                });
+
+                // ---------------------------
+                //   5. Nube de Palabras
+                //---------------------------
+                let words = {};
+
+                Object.values(data).forEach(newsList => {
+                    newsList.forEach(n => {
+                        const titleWords = n.title
+                            .toLowerCase()
+                            .replace(/[.,;:!?¿¡]/g, "")
+                            .split(" ");
+
+                        titleWords.forEach(w => {
+                            if (w.length <= 3) return;
+                            words[w] = (words[w] || 0) + 1;
+                        });
+                    });
+                });
+
+                const wc = document.getElementById("word-cloud");
+                wc.innerHTML = "";
+
+                Object.entries(words).slice(0, 40).forEach(([w, count]) => {
+                    wc.innerHTML += `<span style="font-size:${12 + count * 2}px" class="text-gray-700 dark:text-gray-200">${w}</span>`;
+                });
+
+            } catch (e) {
+                console.error("Error cargando dashboard:", e);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadDashboard);
+    </script>
+
+
+</body>
+
+</html>

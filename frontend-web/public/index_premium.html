@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Noticias - NewsHub</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        // Configuración de Tailwind para usar el modo oscuro
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#4f46e5', // Índigo base para acentos
+                        'secondary-gray': '#f3f4f6', // Gris claro para fondo
+                    }
+                }
+            }
+        }
+
+        // Script para manejar el modo oscuro
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+
+<body class="bg-secondary-gray dark:bg-gray-900 min-h-screen transition-colors duration-300">
+
+    <div class="flex">
+
+        <aside class="w-20 fixed h-screen bg-white dark:bg-gray-800 shadow-lg flex flex-col items-center py-6 z-50">
+
+            <div class="mb-10">
+                <div
+                    class="w-15 h-15 bg-primary-blue rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    <img src="https://i.pinimg.com/736x/9b/19/e0/9b19e0163ddad325e3c6d32e18ee995c.jpg" alt="">
+                </div>
+            </div>
+
+            <nav class="space-y-6">
+
+                <!-- INICIO -->
+                <a href="#" title="Home / Inicio" class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-300
+              hover:text-primary-blue transition duration-200" id="nav-home">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2l-7-7m7 7v10a1 1 0 01-1 1h-3">
+                        </path>
+                    </svg>
+
+                    <span class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 
+                     text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 
+                     transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                        Inicio
+                    </span>
+                </a>
+
+                <!-- DASHBOARD PREMIUM -->
+                <a href="#premium-dashboard" title="Dashboard/Estadísticas (Premium)" class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-400
+              hover:text-primary-blue transition duration-200" id="nav-dashboard">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 12l3-3 3 3 7-7M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2z">
+                        </path>
+                    </svg>
+
+                    <span class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 
+                     text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 
+                     transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                        Dashboard / Estadísticas (Premium)
+                    </span>
+                </a>
+
+                <!-- FAVORITOS -->
+                <a href="#favoritos" title="Noticias Favoritas" class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-400
+          hover:text-primary-blue transition duration-200" id="nav-favoritos">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                    </svg>
+
+                    <span class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 
+                 text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 
+                 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                        Mis Favoritos
+                    </span>
+                </a>
+
+                <!-- HISTORIAL -->
+                <a href="#historial" title="Historial de Lectura" class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-400
+              hover:text-primary-blue transition duration-200" id="nav-historial">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+
+                    <span class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 
+                     text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 
+                     transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                        Historial de Lectura
+                    </span>
+                </a>
+
+                <!-- CONFIGURACIÓN -->
+                <a href="#configuracion" title="Configuración / Ajustes" class="group relative p-3 rounded-xl text-gray-600 dark:text-gray-400
+              hover:text-primary-blue transition duration-200" id="nav-configuracion">
+
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 
+                     1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 
+                     2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 
+                     2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 
+                     1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 
+                     1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 
+                     1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 
+                     1.724 0 002.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+
+                    <span class="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1 bg-gray-800 
+                     text-white text-xs font-medium rounded-md opacity-0 group-hover:opacity-100 
+                     transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                        Configuración
+                    </span>
+                </a>
+
+            </nav>
+
+            <div class="my-6 border-t border-gray-200 dark:border-gray-700 w-1/2"></div>
+
+            <button id="dark-mode-toggle" title="Modo Oscuro/Claro"
+                class="p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                ☀️
+            </button>
+        </aside>
+
+        <div class="flex-1 ml-20">
+
+            <header
+                class="sticky top-0 z-40 bg-white dark:bg-gray-800 shadow-sm dark:shadow-xl dark:shadow-indigo-900/10">
+                <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+                    <div>
+                        <h1 id="saludo" class="text-xl font-semibold text-gray-900 dark:text-gray-100"></h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Explora las noticias más recientes</p>
+                    </div>
+
+                    <!-- Ícono usuario -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Buscar artículos..." id="search-input"
+                                class="p-2 pl-10 border border-gray-300 dark:border-gray-700 rounded-lg bg-secondary-gray dark:bg-gray-700 focus:ring-primary-blue focus:border-primary-blue w-64 shadow-inner text-sm">
+                            <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- Botón Premium -->
+                        <button id="premium-button" class="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-lg font-medium hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300 shadow-md">
+                            Premium
+                        </button>
+                        
+                        <div class="relative">
+                            <div id="user-menu-button"
+                                class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full cursor-pointer hover:ring-2 ring-primary-blue transition flex items-center justify-center text-gray-700 dark:text-gray-300 font-medium">
+                                A
+                            </div>
+                            
+                            <!-- Menú desplegable del usuario -->
+                            <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 z-50 hidden">
+                                <div class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+                                    <p class="font-medium">Alejandra</p>
+                                    <p class="text-gray-500 dark:text-gray-400">usuario@ejemplo.com</p>
+                                </div>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" id="change-name">Cambiar nombre</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" id="logout">Cerrar sesión</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2 bg-white dark:bg-gray-800 shadow-xl rounded-2xl max-w-xl mx-auto mb-4">
+                    <div class="flex space-x-2">
+
+                        <!-- Filtro por fecha -->
+                        <div class="relative flex-grow" id="filter-fecha">
+                            <button
+                                class="w-full text-left h-10 px-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                id="fecha-button" aria-expanded="false" aria-controls="fecha-menu">
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" id="fecha-text">Fecha</span>
+                            </button>
+
+                            <div class="absolute z-20 mt-3 left-0 w-64 origin-top-left bg-white dark:bg-gray-800 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 hidden p-4"
+                                role="menu" aria-orientation="vertical" id="fecha-menu" aria-labelledby="fecha-button">
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Desde:</label>
+                                        <input type="date" id="fecha-inicio" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Hasta:</label>
+                                        <input type="date" id="fecha-fin" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm">
+                                    </div>
+                                    <button id="aplicar-fecha" class="w-full bg-pink-600 hover:bg-pink-700 text-white py-2 rounded-lg text-sm font-medium transition duration-150">
+                                        Aplicar filtro
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative flex-grow" id="filter-fuente">
+                            <button
+                                class="w-full text-left h-10 px-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                id="fuente-button" aria-expanded="false" aria-controls="fuente-menu">
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" id="fuente-text">Fuente</span>
+                            </button>
+
+                            <div class="absolute z-20 mt-3 left-0 w-64 origin-top-left bg-white dark:bg-gray-800 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 hidden"
+                                role="menu" aria-orientation="vertical" id="fuente-menu" aria-labelledby="fuente-button">
+
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100 filter-option" role="menuitem" data-filter="fuente" data-value="el-comercio">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">El Comercio</span>
+                                </a>
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100 filter-option" role="menuitem" data-filter="fuente" data-value="bbc-mundo">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">BBC Mundo</span>
+                                </a>
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100 filter-option" role="menuitem" data-filter="fuente" data-value="gizmodo-tech">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">Gizmodo Tech</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="relative flex-grow" id="filter-pais">
+                            <button
+                                class="w-full text-left h-10 px-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                id="pais-button" aria-expanded="false" aria-controls="pais-menu">
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300" id="pais-text">País</span>
+                            </button>
+
+                            <div class="absolute z-20 mt-3 left-0 w-48 origin-top-left bg-white dark:bg-gray-800 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 hidden"
+                                role="menu" aria-orientation="vertical" id="pais-menu" aria-labelledby="pais-button">
+
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100 filter-option" role="menuitem" data-filter="pais" data-value="peru">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">🇵🇪 Perú</span>
+                                </a>
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100 filter-option" role="menuitem" data-filter="pais" data-value="mexico">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">🇲🇽 México</span>
+                                </a>
+                                <a href="#" class="block p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-100 filter-option" role="menuitem" data-filter="pais" data-value="espana">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">🇪🇸 España</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button id="search-button"
+                                class="flex items-center justify-center h-10 w-10 rounded-xl bg-pink-600 hover:bg-pink-700 text-white shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </header>
+
+            <div class="max-w-7xl mx-auto px-6 py-8">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Topic categories</h2>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-4 mb-10" id="categories-container">
+                    <!-- Las categorías se generarán dinámicamente -->
+                </div>
+
+                <h2
+                    class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100 flex justify-between items-center">
+                    Today headlines
+                    <a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-blue">Filters →</a>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10" id="headlines-container">
+                    <!-- Los titulares se generarán dinámicamente -->
+                </div>
+
+                <h2
+                    class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100 flex justify-between items-center">
+                    Latest news
+                    <a href="#" class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-blue">Filters →</a>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="news-container">
+                    <!-- Las noticias se generarán dinámicamente -->
+                </div>
+
+                <div class="lg:col-span-4 flex justify-center items-center space-x-2 mt-8" id="pagination-container">
+                    <!-- La paginación se generará dinámicamente -->
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Premium -->
+    <div id="premium-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Actualiza a Premium</h3>
+                <button id="close-premium-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4 mb-6">
+                <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-primary-blue dark:hover:border-primary-blue transition-colors">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100">Gratis</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Acceso limitado</p>
+                        </div>
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">$0</span>
+                    </div>
+                </div>
+                
+                <div class="border-2 border-primary-blue rounded-xl p-4 bg-primary-blue bg-opacity-5">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100">Mensual</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Acceso completo</p>
+                        </div>
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">$9.99/mes</span>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-primary-blue dark:hover:border-primary-blue transition-colors">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 dark:text-gray-100">Anual</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Ahorra 20%</p>
+                        </div>
+                        <span class="text-lg font-bold text-gray-900 dark:text-gray-100">$95.99/año</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="select-premium" class="w-full bg-primary-blue hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                Seleccionar Premium
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Cambiar Nombre -->
+    <div id="change-name-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Cambiar nombre</h3>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nuevo nombre</label>
+                <input type="text" id="new-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            </div>
+            <div class="flex space-x-3">
+                <button id="save-name" class="flex-1 bg-primary-blue hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                    Guardar
+                </button>
+                <button id="cancel-change-name" class="flex-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300 py-3 rounded-lg font-semibold transition-colors">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de ejemplo para simular la aplicación
+        const categories = [
+            { id: 'architect', name: 'Architect', icon: '🏛️', color: 'blue' },
+            { id: 'education', name: 'Education', icon: '📚', color: 'yellow' },
+            { id: 'music', name: 'Music', icon: '🎵', color: 'red' },
+            { id: 'economy', name: 'Economy', icon: '💰', color: 'green' },
+            { id: 'games', name: 'Games', icon: '🎮', color: 'pink' },
+            { id: 'science', name: 'Science', icon: '🔬', color: 'blue' },
+            { id: 'sports', name: 'Sports', icon: '⚽', color: 'green' },
+            { id: 'technology', name: 'Technology', icon: '💻', color: 'purple' },
+            { id: 'politics', name: 'Politics', icon: '🏛️', color: 'red' },
+            { id: 'health', name: 'Health', icon: '🏥', color: 'green' }
+        ];
+
+        const news = [
+            { id: 1, title: 'Development in Indonesia is very rapid', category: 'architect', source: 'NY news', views: '4.6k', date: '2023-01-31', image: 'https://via.placeholder.com/400x300?text=Architecture+Indonesia', author: 'Wildan L.', role: 'Photographer' },
+            { id: 2, title: 'London is the largest city in Europe with a population of over 7 million', category: 'architect', source: 'BBC', views: '12.8k', date: '2023-02-02', image: 'https://via.placeholder.com/400x300?text=London+Cityscape', author: 'Reza A', role: 'Photographer' },
+            { id: 3, title: 'Population in London consisted of many ethnicities', category: 'education', source: 'Daily news', views: '65.4k', date: '2023-01-27', image: 'https://via.placeholder.com/400x300?text=Multicultural+London', author: 'Nabhan LD', role: 'Photographer' },
+            { id: 4, title: 'Buildings are also commonly refer houses or buildings', category: 'architect', source: 'NY news', views: '74k', date: '2023-01-27', image: 'https://via.placeholder.com/400x300?text=Building+Construction', author: 'Zahran R', role: 'Photographer' },
+            { id: 5, title: 'Ron Howard pays tribute to fellow actor after passing', category: 'music', source: 'NY news', views: '4.6k', date: '2023-02-15', image: 'https://via.placeholder.com/60x60?text=Tec', author: 'Unknown', role: 'Reporter' },
+            { id: 6, title: 'Empire State shelters angry migrants in city', category: 'politics', source: 'BBC', views: '12.8k', date: '2023-02-14', image: 'https://via.placeholder.com/60x60?text=Pol', author: 'Unknown', role: 'Reporter' },
+            { id: 7, title: 'NY raises funds for child health care and education', category: 'health', source: 'Daily news', views: '65.4k', date: '2023-02-13', image: 'https://via.placeholder.com/60x60?text=Fin', author: 'Unknown', role: 'Reporter' },
+            { id: 8, title: 'Singer Rita Ora debuts latest new musical album this week', category: 'music', source: 'NY news', views: '74k', date: '2023-02-12', image: 'https://via.placeholder.com/60x60?text=Art', author: 'Unknown', role: 'Reporter' }
+        ];
+
+        // Estado de la aplicación
+        let appState = {
+            currentPage: 1,
+            itemsPerPage: 4,
+            currentCategory: null,
+            currentFilters: {
+                categoria: null,
+                fuente: null,
+                pais: null,
+                fecha: null
+            },
+            user: {
+                name: "Alejandra",
+                email: "usuario@ejemplo.com",
+                premium: false
+            },
+            favorites: [],
+            history: [],
+            currentSection: 'home'
+        };
+
+        // Inicialización de la aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            setupEventListeners();
+            renderCategories();
+            renderNews();
+            renderHeadlines();
+            renderPagination();
+        });
+
+        function initializeApp() {
+            // Cargar datos del usuario desde localStorage si existen
+            const savedUser = localStorage.getItem('newsHubUser');
+            if (savedUser) {
+                appState.user = JSON.parse(savedUser);
+            }
+            
+            // Actualizar saludo
+            updateGreeting();
+        }
+
+        function setupEventListeners() {
+            // Lógica del Tema (Modo Oscuro)
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const updateIcon = () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    darkModeToggle.innerHTML = '🌙';
+                } else {
+                    darkModeToggle.innerHTML = '☀️';
+                }
+            };
+
+            updateIcon();
+
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateIcon();
+            });
+
+            // Menú de usuario
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', () => {
+                userMenu.classList.add('hidden');
+            });
+
+            // Cambiar nombre
+            document.getElementById('change-name').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('change-name-modal').classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            });
+            
+            document.getElementById('save-name').addEventListener('click', () => {
+                const newName = document.getElementById('new-name').value;
+                if (newName.trim()) {
+                    appState.user.name = newName.trim();
+                    localStorage.setItem('newsHubUser', JSON.stringify(appState.user));
+                    updateGreeting();
+                    document.getElementById('change-name-modal').classList.add('hidden');
+                }
+            });
+            
+            document.getElementById('cancel-change-name').addEventListener('click', () => {
+                document.getElementById('change-name-modal').classList.add('hidden');
+            });
+
+            // Cerrar sesión
+            document.getElementById('logout').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                    localStorage.removeItem('newsHubUser');
+                    window.location.reload();
+                }
+            });
+
+            // Funcionalidad Premium
+            document.getElementById('premium-button').addEventListener('click', () => {
+                document.getElementById('premium-modal').classList.remove('hidden');
+            });
+            
+            document.getElementById('close-premium-modal').addEventListener('click', () => {
+                document.getElementById('premium-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('select-premium').addEventListener('click', () => {
+                alert('¡Funcionalidad Premium activada! En una aplicación real, aquí se procesaría el pago.');
+                document.getElementById('premium-modal').classList.add('hidden');
+            });
+
+            // Navegación lateral
+            document.getElementById('nav-home').addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToSection('home');
+            });
+            
+            document.getElementById('nav-dashboard').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (appState.user.premium) {
+                    navigateToSection('dashboard');
+                } else {
+                    document.getElementById('premium-modal').classList.remove('hidden');
+                }
+            });
+            
+            document.getElementById('nav-favoritos').addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToSection('favoritos');
+            });
+            
+            document.getElementById('nav-historial').addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToSection('historial');
+            });
+            
+            document.getElementById('nav-configuracion').addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToSection('configuracion');
+            });
+
+            // Buscador
+            document.getElementById('search-button').addEventListener('click', performSearch);
+            document.getElementById('search-input').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            // Filtros
+            setupFilters();
+        }
+
+        function updateGreeting() {
+            const userName = appState.user.name;
+            function obtenerSaludo() {
+                const hora = new Date().getHours();
+                if (hora < 12) return "Buenos días";
+                if (hora < 18) return "Buenas tardes";
+                return "Buenas noches";
+            }
+            document.getElementById("saludo").innerText = `${obtenerSaludo()} ${userName}!`;
+        }
+
+        function setupFilters() {
+            const filters = [
+                { id: 'fecha' },
+                { id: 'fuente' },
+                { id: 'pais' }
+            ];
+
+            // Cerrar todos los menús
+            const closeAllMenus = (currentId = null) => {
+                filters.forEach(filter => {
+                    const menu = document.getElementById(`${filter.id}-menu`);
+                    const button = document.getElementById(`${filter.id}-button`);
+                    if (menu && button && filter.id !== currentId && !menu.classList.contains('hidden')) {
+                        menu.classList.add('hidden');
+                        button.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            };
+
+            // Abrir/cerrar menús de filtros
+            filters.forEach(filter => {
+                const button = document.getElementById(`${filter.id}-button`);
+                const menu = document.getElementById(`${filter.id}-menu`);
+
+                if (!button || !menu) return;
+
+                const toggleMenu = () => {
+                    const isHidden = menu.classList.contains('hidden');
+                    closeAllMenus(filter.id);
+                    if (isHidden) {
+                        menu.classList.remove('hidden');
+                        button.setAttribute('aria-expanded', 'true');
+                    } else {
+                        menu.classList.add('hidden');
+                        button.setAttribute('aria-expanded', 'false');
+                    }
+                };
+
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    toggleMenu();
+                });
+            });
+
+            document.addEventListener('click', () => {
+                closeAllMenus();
+            });
+
+            // Aplicar filtro de fecha
+            document.getElementById('aplicar-fecha').addEventListener('click', () => {
+                const fechaInicio = document.getElementById('fecha-inicio').value;
+                const fechaFin = document.getElementById('fecha-fin').value;
+                
+                if (fechaInicio && fechaFin) {
+                    appState.currentFilters.fecha = { inicio: fechaInicio, fin: fechaFin };
+                    document.getElementById('fecha-text').innerHTML = `${fechaInicio} - ${fechaFin}`;
+                    document.getElementById('fecha-menu').classList.add('hidden');
+                    applyFilters();
+                }
+            });
+
+            // Aplicar filtros de opciones
+            document.querySelectorAll('.filter-option').forEach(item => {
+                item.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const filterId = item.getAttribute('data-filter');
+                    const value = item.getAttribute('data-value');
+                    const displayValue = item.querySelector('span').textContent.trim();
+                    
+                    appState.currentFilters[filterId] = value;
+                    document.getElementById(`${filterId}-text`).innerHTML = displayValue;
+                    document.getElementById(`${filterId}-menu`).classList.add('hidden');
+                    
+                    applyFilters();
+                });
+            });
+        }
+
+        function applyFilters() {
+            // En una aplicación real, aquí se haría una llamada a la API con los filtros
+            console.log('Aplicando filtros:', appState.currentFilters);
+            renderNews();
+            renderHeadlines();
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (searchTerm.trim()) {
+                // En una aplicación real, aquí se haría una búsqueda en la API
+                console.log('Buscando:', searchTerm);
+                alert(`Buscando: "${searchTerm}"`);
+            }
+        }
+
+        function navigateToSection(section) {
+            appState.currentSection = section;
+            
+            // Actualizar la UI según la sección
+            const sections = ['home', 'dashboard', 'favoritos', 'historial', 'configuracion'];
+            sections.forEach(sec => {
+                const element = document.getElementById(`${sec}-section`);
+                if (element) {
+                    element.style.display = sec === section ? 'block' : 'none';
+                }
+            });
+            
+            // Por simplicidad, en este ejemplo solo manejamos la sección home
+            if (section === 'home') {
+                renderNews();
+                renderHeadlines();
+            } else {
+                alert(`Navegando a: ${section}`);
+            }
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+            
+            categories.forEach(category => {
+                const categoryElement = document.createElement('a');
+                categoryElement.href = '#';
+                categoryElement.className = `flex flex-col items-center p-3 rounded-xl bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition duration-200 ring-1 ring-gray-200 dark:ring-gray-700 category-item`;
+                categoryElement.setAttribute('data-category', category.id);
+                
+                const colorClass = `bg-${category.color}-100 dark:bg-${category.color}-900 text-${category.color}-600 dark:text-${category.color}-400`;
+                
+                categoryElement.innerHTML = `
+                    <div class="w-10 h-10 mb-2 ${colorClass} rounded-full flex items-center justify-center">
+                        ${category.icon}
+                    </div>
+                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">${category.name}</span>
+                `;
+                
+                categoryElement.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    filterByCategory(category.id);
+                });
+                
+                container.appendChild(categoryElement);
+            });
+        }
+
+        function filterByCategory(categoryId) {
+            appState.currentCategory = categoryId;
+            appState.currentPage = 1;
+            renderNews();
+            renderHeadlines();
+            
+            // Resaltar la categoría seleccionada
+            document.querySelectorAll('.category-item').forEach(item => {
+                if (item.getAttribute('data-category') === categoryId) {
+                    item.classList.add('ring-2', 'ring-primary-blue');
+                } else {
+                    item.classList.remove('ring-2', 'ring-primary-blue');
+                }
+            });
+        }
+
+        function renderHeadlines() {
+            const container = document.getElementById('headlines-container');
+            container.innerHTML = '';
+            
+            let filteredNews = [...news];
+            
+            // Aplicar filtro de categoría si existe
+            if (appState.currentCategory) {
+                filteredNews = filteredNews.filter(item => item.category === appState.currentCategory);
+            }
+            
+            // Tomar las primeras 8 noticias para los titulares
+            const headlines = filteredNews.slice(0, 8);
+            
+            headlines.forEach(item => {
+                const article = document.createElement('article');
+                article.className = 'flex space-x-3 bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md ring-1 ring-gray-200 dark:ring-gray-700 hover:shadow-lg transition duration-200';
+                
+                article.innerHTML = `
+                    <img src="${item.image}" alt="Headline Image" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <p class="text-xs font-medium text-gray-900 dark:text-gray-100 leading-snug hover:text-primary-blue cursor-pointer">
+                            ${item.title}
+                        </p>
+                        <div class="flex items-center space-x-2 mt-1 text-xs">
+                            <span class="px-1 bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400 rounded">${item.source}</span>
+                            <span class="text-gray-500 dark:text-gray-400">${item.views} 👀</span>
+                        </div>
+                    </div>
+                `;
+                
+                article.addEventListener('click', () => {
+                    // Agregar al historial
+                    if (!appState.history.some(historyItem => historyItem.id === item.id)) {
+                        appState.history.push(item);
+                    }
+                    
+                    // Mostrar noticia completa (simulado)
+                    alert(`Abriendo noticia: ${item.title}`);
+                });
+                
+                container.appendChild(article);
+            });
+        }
+
+        function renderNews() {
+            const container = document.getElementById('news-container');
+            container.innerHTML = '';
+            
+            let filteredNews = [...news];
+            
+            // Aplicar filtro de categoría si existe
+            if (appState.currentCategory) {
+                filteredNews = filteredNews.filter(item => item.category === appState.currentCategory);
+            }
+            
+            // Calcular noticias para la página actual
+            const startIndex = (appState.currentPage - 1) * appState.itemsPerPage;
+            const endIndex = startIndex + appState.itemsPerPage;
+            const currentNews = filteredNews.slice(startIndex, endIndex);
+            
+            currentNews.forEach(item => {
+                const article = document.createElement('article');
+                article.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 overflow-hidden ring-1 ring-gray-200 dark:ring-gray-700';
+                
+                article.innerHTML = `
+                    <div class="h-36 bg-cover bg-center" style="background-image: url('${item.image}');">
+                        <a href="#" class="float-right m-2 px-3 py-1 bg-primary-blue text-white text-xs rounded-full hover:bg-indigo-700 read-more">Read more</a>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-base font-bold leading-snug mb-3 hover:text-primary-blue cursor-pointer text-gray-900 dark:text-gray-100">
+                            ${item.title}
+                        </h3>
+                        <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-2 border-t pt-3 mt-3 dark:border-gray-700">
+                            <div class="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                            <div>
+                                <p>${item.author}</p>
+                                <p>${item.role} • ${formatDate(item.date)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Agregar evento al botón "Read more"
+                article.querySelector('.read-more').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Agregar al historial
+                    if (!appState.history.some(historyItem => historyItem.id === item.id)) {
+                        appState.history.push(item);
+                    }
+                    
+                    // Mostrar noticia completa (simulado)
+                    alert(`Abriendo noticia completa: ${item.title}`);
+                });
+                
+                container.appendChild(article);
+            });
+        }
+
+        function renderPagination() {
+            const container = document.getElementById('pagination-container');
+            container.innerHTML = '';
+            
+            let filteredNews = [...news];
+            
+            // Aplicar filtro de categoría si existe
+            if (appState.currentCategory) {
+                filteredNews = filteredNews.filter(item => item.category === appState.currentCategory);
+            }
+            
+            const totalPages = Math.ceil(filteredNews.length / appState.itemsPerPage);
+            
+            // Botón anterior
+            const prevButton = document.createElement('button');
+            prevButton.className = 'p-2 px-3 border rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors duration-150 shadow-sm';
+            prevButton.textContent = '← Anterior';
+            prevButton.disabled = appState.currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (appState.currentPage > 1) {
+                    appState.currentPage--;
+                    renderNews();
+                    renderPagination();
+                }
+            });
+            container.appendChild(prevButton);
+            
+            // Números de página
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('a');
+                pageButton.href = '#';
+                pageButton.className = `p-2 px-4 rounded-lg ${i === appState.currentPage ? 'bg-primary-blue text-white font-bold shadow-md' : 'border bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm'}`;
+                pageButton.textContent = i;
+                pageButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    appState.currentPage = i;
+                    renderNews();
+                    renderPagination();
+                });
+                container.appendChild(pageButton);
+            }
+            
+            // Botón siguiente
+            const nextButton = document.createElement('button');
+            nextButton.className = 'p-2 px-3 border rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors duration-150 shadow-sm';
+            nextButton.textContent = 'Siguiente →';
+            nextButton.disabled = appState.currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (appState.currentPage < totalPages) {
+                    appState.currentPage++;
+                    renderNews();
+                    renderPagination();
+                }
+            });
+            container.appendChild(nextButton);
+        }
+
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+    </script>
+</body>
+
+</html>

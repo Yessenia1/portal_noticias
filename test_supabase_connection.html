@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Connection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+        .info {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            color: #1e40af;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f9fafb;
+            border-left: 4px solid #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Conexión con Supabase</h1>
+
+        <div class="step">
+            <h3>Paso 1: Verificar Conexión</h3>
+            <button onclick="testConnection()">🔌 Probar Conexión</button>
+        </div>
+
+        <div class="step">
+            <h3>Paso 2: Verificar Tabla user_favorites</h3>
+            <button onclick="checkTable()">📋 Verificar Tabla</button>
+        </div>
+
+        <div class="step">
+            <h3>Paso 3: Crear Tabla (si no existe)</h3>
+            <button onclick="createTable()">🛠️ Crear Tabla</button>
+        </div>
+
+        <div class="step">
+            <h3>Paso 4: Insertar Favorito de Prueba</h3>
+            <input type="text" id="testEmail" placeholder="tu@email.com" style="padding: 8px; margin-right: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            <button onclick="insertTestFavorite()">➕ Insertar Prueba</button>
+        </div>
+
+        <div class="step">
+            <h3>Paso 5: Listar Todos los Favoritos</h3>
+            <button onclick="listAllFavorites()">📜 Ver Favoritos</button>
+        </div>
+
+        <div class="step">
+            <h3>Paso 6: Eliminar Datos de Prueba</h3>
+            <button onclick="cleanupTest()">🧹 Limpiar Pruebas</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        // Configuración de Supabase
+        const supabaseUrl = 'https://bziuhbswzpcqduitponw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6aXVoYnN3enBjcWR1aXRwb253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MDExMDcsImV4cCI6MjA3OTI3NzEwN30.xGMJgpr7tOQw5d6WAYJmFjZAMdM2d0cc7b7kI-j6OD0';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+
+        // Test 1: Verificar conexión
+        window.testConnection = async () => {
+            showResult('🔄 Probando conexión...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('noticias')
+                    .select('id')
+                    .limit(1);
+
+                if (error) {
+                    showResult(`❌ Error de conexión:\n${error.message}`, 'error');
+                } else {
+                    showResult(`✅ Conexión exitosa!\n\nConectado a: ${supabaseUrl}\nTabla 'noticias' accesible`, 'success');
+                }
+            } catch (e) {
+                showResult(`❌ Error crítico:\n${e.message}`, 'error');
+            }
+        };
+
+        // Test 2: Verificar tabla user_favorites
+        window.checkTable = async () => {
+            showResult('🔄 Verificando tabla user_favorites...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('user_favorites')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    if (error.message.includes('does not exist') || error.message.includes('not found')) {
+                        showResult(`❌ La tabla 'user_favorites' NO existe.\n\n` +
+                                 `Necesitas crearla ejecutando el script SQL en Supabase.\n` +
+                                 `Ver archivo: create_user_favorites_table.sql`, 'error');
+                    } else {
+                        showResult(`⚠️ Error al verificar tabla:\n${error.message}`, 'error');
+                    }
+                } else {
+                    showResult(`✅ La tabla 'user_favorites' existe!\n\nRegistros encontrados: ${data.length}`, 'success');
+                }
+            } catch (e) {
+                showResult(`❌ Error crítico:\n${e.message}`, 'error');
+            }
+        };
+
+        // Test 3: Intentar crear tabla (puede fallar por permisos)
+        window.createTable = async () => {
+            showResult('⚠️ No se puede crear la tabla desde el cliente.\n\n' +
+                     'Debes ejecutar el script SQL manualmente en Supabase Dashboard:\n\n' +
+                     '1. Ve a https://supabase.com/dashboard\n' +
+                     '2. Abre SQL Editor\n' +
+                     '3. Ejecuta el contenido de create_user_favorites_table.sql', 'info');
+        };
+
+        // Test 4: Insertar favorito de prueba
+        window.insertTestFavorite = async () => {
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                showResult('❌ Por favor ingresa un email', 'error');
+                return;
+            }
+
+            showResult('🔄 Insertando favorito de prueba...', 'info');
+            try {
+                const testFavorite = {
+                    user_id: email,
+                    news_id: 'test_news_' + Date.now()
+                };
+
+                const { data, error } = await supabase
+                    .from('user_favorites')
+                    .insert([testFavorite])
+                    .select();
+
+                if (error) {
+                    showResult(`❌ Error al insertar:\n${error.message}\n\n` +
+                             `Sugerencia: Verifica que la tabla existe con el botón "Verificar Tabla"`, 'error');
+                } else {
+                    showResult(`✅ Favorito de prueba insertado!\n\n` +
+                             `user_id: ${testFavorite.user_id}\n` +
+                             `news_id: ${testFavorite.news_id}\n\n` +
+                             `Datos guardados: ${JSON.stringify(data, null, 2)}`, 'success');
+                }
+            } catch (e) {
+                showResult(`❌ Error crítico:\n${e.message}`, 'error');
+            }
+        };
+
+        // Test 5: Listar favoritos
+        window.listAllFavorites = async () => {
+            showResult('🔄 Obteniendo todos los favoritos...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('user_favorites')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    showResult(`❌ Error al listar:\n${error.message}`, 'error');
+                } else {
+                    if (data.length === 0) {
+                        showResult('📭 No hay favoritos guardados todavía', 'info');
+                    } else {
+                        showResult(`✅ Favoritos encontrados: ${data.length}\n\n` +
+                                 JSON.stringify(data, null, 2), 'success');
+                    }
+                }
+            } catch (e) {
+                showResult(`❌ Error crítico:\n${e.message}`, 'error');
+            }
+        };
+
+        // Test 6: Limpiar datos de prueba
+        window.cleanupTest = async () => {
+            showResult('🔄 Eliminando datos de prueba...', 'info');
+            try {
+                const { data, error } = await supabase
+                    .from('user_favorites')
+                    .delete()
+                    .like('news_id', 'test_news_%')
+                    .select();
+
+                if (error) {
+                    showResult(`❌ Error al limpiar:\n${error.message}`, 'error');
+                } else {
+                    showResult(`✅ Limpieza completada!\n\nRegistros eliminados: ${data?.length || 0}`, 'success');
+                }
+            } catch (e) {
+                showResult(`❌ Error crítico:\n${e.message}`, 'error');
+            }
+        };
+
+        // Ejecutar test inicial automáticamente
+        setTimeout(() => {
+            showResult('👋 Bienvenido al Test de Supabase\n\nHaz clic en los botones para probar cada funcionalidad.\n\n' +
+                     'Comienza con "Probar Conexión" y luego "Verificar Tabla".', 'info');
+        }, 500);
+    </script>
+</body>
+</html>

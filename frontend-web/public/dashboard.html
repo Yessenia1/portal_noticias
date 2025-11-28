@@ -1,0 +1,72 @@
+<!-- DASHBOARD ADMINISTRATIVO (Inicialmente oculto) -->
+<div id="dashboard-page" class="mt-8 container mx-auto px-4 py-8 hidden">
+    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 border-b pb-2">
+        🛠️ Panel de Administración 
+    </h1>
+
+    <!-- 1. MÓDULO DE INFORMACIÓN GENERAL/ESTADÍSTICAS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-primary-blue">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Total Noticias Cargadas</p>
+            <p id="dashboard-total-news" class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                --
+            </p>
+            <p class="text-xs text-green-500 mt-2">Detección de País/Categoría activa.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Usuarios Premium (Simulado)</p>
+            <p id="dashboard-premium-users" class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                1 / 10
+            </p>
+            <p class="text-xs text-red-500 mt-2">Requiere Firebase Auth para ser real.</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Categorías Únicas Detectadas</p>
+            <p id="dashboard-unique-categories" class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                --
+            </p>
+            <p class="text-xs text-yellow-500 mt-2">Calculado en el lado del cliente.</p>
+        </div>
+    </div>
+
+    <!-- 2. GESTIÓN DE NOTICIAS (CRUD Simulado) -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Gestión de Contenido</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Aquí podrías listar las noticias de Supabase con opciones para Editar o Eliminar (CRUD).
+        </p>
+        
+        <!-- Botones de Acción (Simulados) -->
+        <div class="space-x-4">
+            <button class="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition">
+                + Añadir Nueva Noticia
+            </button>
+            <button class="px-4 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition">
+                Sincronizar Data (Supabase)
+            </button>
+        </div>
+        
+        <!-- Tabla de Muestra -->
+        <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría Asignada</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="dashboard-news-list" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <!-- Filas de noticias se inyectarían aquí -->
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Cargando datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

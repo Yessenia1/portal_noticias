@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsPortal AI - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@300;700;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter'], serif: ['Merriweather'] },
+                    colors: { brand: { 500: '#2563EB', 900: '#1E3A8A' }, neon: { 400: '#22D3EE' }, yape: '#742284', plin: '#00C9E0' }
+                }
+            }
+        }
+    </script>
+    <style>
+        .ad-pattern {
+            background-color: #f1f5f9;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+
+        .dark .ad-pattern {
+            background-color: #1e293b;
+            background-image: radial-gradient(#334155 1px, transparent 1px);
+        }
+
+        body.plan-free .only-premium {
+            display: none !important;
+        }
+
+        body.plan-premium .only-free {
+            display: none !important;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="plan-free bg-slate-50 text-slate-800 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300"
+    onclick="closeDropdowns(event)">
+
+    <nav
+        class="sticky top-0 z-40 w-full bg-white/90 backdrop-blur border-b border-slate-200 dark:bg-gray-900/90 dark:border-gray-800 h-16 flex items-center px-4 lg:px-8 justify-between">
+        <div class="flex items-center gap-2 font-bold text-xl font-serif tracking-tight cursor-pointer"
+            onclick="window.location.reload()">
+            <div class="w-8 h-8 bg-brand-500 rounded flex items-center justify-center text-white">N</div>
+            <span class="dark:text-white">News<span class="text-brand-500 dark:text-neon-400">AI</span></span>
+        </div>
+
+        <div class="hidden md:flex flex-1 max-w-md mx-6 relative">
+            <input type="text" id="search-input" placeholder="Buscar noticias..."
+                class="w-full pl-10 pr-4 py-2 rounded-full bg-slate-100 border-none text-sm focus:ring-2 focus:ring-brand-500 dark:bg-gray-800 dark:text-white placeholder-slate-400">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="openPricingModal()"
+                class="only-free bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-4 py-2 rounded-full hover:shadow-lg transform hover:scale-105 transition-all">
+                👑 Suscribirse
+            </button>
+
+            <div
+                class="only-premium px-3 py-1 bg-gray-800 text-neon-400 text-xs font-bold rounded-full border border-gray-700 shadow-lg shadow-neon-400/20">
+                PLAN PRO
+            </div>
+
+            <button onclick="document.documentElement.classList.toggle('dark')"
+                class="p-2 text-slate-500 hover:bg-slate-100 rounded-full dark:hover:bg-gray-800">
+                <svg class="w-5 h-5 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 24.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <svg class="w-5 h-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707M12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </button>
+
+            <div id="auth-actions" class="flex items-center gap-3 relative">
+                <button id="login-btn-nav" class="text-sm font-bold text-brand-600 hover:underline">Ingresar</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex flex-col md:flex-row container mx-auto px-4 py-6 gap-8 min-h-screen">
+
+        <aside class="w-full md:w-64 flex-shrink-0 space-y-8">
+            <div
+                class="space-y-4 bg-white dark:bg-gray-900 p-4 rounded-xl border border-slate-200 dark:border-gray-800">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filtros</h3>
+                <div>
+                    <label class="text-xs font-semibold mb-1 block text-slate-500">Categoría</label>
+                    <select id="filter-categoria"
+                        class="w-full text-sm bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded p-2">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold mb-1 block text-slate-500">País</label>
+                    <select id="filter-pais"
+                        class="w-full text-sm bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded p-2">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold mb-1 block text-slate-500">Fuente</label>
+                    <select id="filter-portal"
+                        class="w-full text-sm bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded p-2">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <button id="apply-filters-btn"
+                    class="w-full bg-slate-800 text-white dark:bg-slate-700 py-2 rounded text-xs font-bold hover:bg-slate-700">Aplicar
+                    Filtros</button>
+                <button id="reset-filters-btn"
+                    class="w-full bg-slate-200 text-slate-800 dark:bg-gray-700 dark:text-white py-2 rounded text-xs font-bold hover:bg-slate-300">Limpiar
+                    Filtros</button>
+            </div>
+            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl">
+                <h3 class="text-xs font-bold text-brand-600 dark:text-neon-400 uppercase mb-2">Panel de Control</h3>
+                <button id="update-news-btn"
+                    class="w-full flex items-center justify-center gap-2 bg-brand-600 text-white text-xs font-bold py-2 px-4 rounded shadow hover:bg-brand-700 transition-all">
+                    Actualizar Noticias
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-hidden">
+            <section class="only-premium mb-8 animate-fade-in">
+                <h2 class="text-xl font-bold mb-4 dark:text-white flex items-center gap-2">
+                    <span class="w-2 h-8 bg-neon-400 rounded-full"></span>
+                    Tendencias en Tiempo Real
+                </h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div
+                        class="bg-white dark:bg-gray-900 p-4 rounded-xl border border-slate-200 dark:border-gray-800 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase mb-3">Noticias Totales</h3>
+                        <div id="total-news-count" class="text-3xl font-bold text-brand-600 dark:text-white">...</div>
+                        <p class="text-xs text-slate-500">En la base de datos</p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-gray-900 to-slate-800 text-white p-4 rounded-xl shadow-lg col-span-2 flex flex-col justify-center">
+                        <h3 class="text-xs font-bold text-neon-400 uppercase mb-1">Estado del Sistema</h3>
+                        <p class="font-serif text-lg font-bold">Inteligencia Artificial: <span
+                                class="text-green-400">ACTIVA</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="flex justify-between items-end mb-4">
+                <h2 class="text-xl font-bold dark:text-white flex items-center gap-2">
+                    <span class="only-free">Noticias Recientes</span>
+                    <span class="only-premium">Feed Inteligente</span>
+                    <span id="global-counter"
+                        class="text-xs font-normal bg-slate-200 dark:bg-gray-800 px-2 py-1 rounded-full ml-2">Cargando...</span>
+                </h2>
+            </div>
+
+            <h2 id="loading-message" class="text-center w-full py-10 text-lg text-slate-500 animate-pulse">Cargando
+                noticias...</h2>
+
+            <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+            <div id="pagination-controls" class="flex justify-center items-center gap-4 mt-8 pb-8 hidden">
+                <button id="prev-page-btn" onclick="changePage('prev')"
+                    class="px-4 py-2 bg-white dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg disabled:opacity-50 hover:bg-slate-50"
+                    disabled>
+                    ← Anterior
+                </button>
+                <span id="page-indicator" class="text-sm font-bold text-slate-600 dark:text-slate-400">Página 1</span>
+                <button id="next-page-btn" onclick="changePage('next')"
+                    class="px-4 py-2 bg-white dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg hover:bg-slate-50">
+                    Siguiente →
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="pricing-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4 overflow-y-auto">
+        <div
+            class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl border border-slate-200 dark:border-gray-700 relative my-8">
+            <button onclick="closePricingModal()" class="absolute top-4 right-4 text-gray-500">✕</button>
+            <div class="p-8 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 dark:text-white mb-8">Planes Premium</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="border border-slate-200 rounded-xl p-6">
+                        <h3 class="font-bold text-xl">Gratis</h3>
+                        <div class="text-3xl font-bold mb-4">S/0</div><button onclick="closePricingModal()"
+                            class="w-full border border-slate-300 py-2 rounded-lg">Actual</button>
+                    </div>
+                    <div class="border-2 border-brand-500 rounded-xl p-6 shadow-xl transform scale-105">
+                        <div class="text-brand-600 font-bold">Mensual</div>
+                        <div class="text-3xl font-bold mb-4">S/29.90</div><button
+                            onclick="openPaymentModal('Mensual', 29.90)"
+                            class="w-full bg-brand-600 text-white py-2 rounded-lg">Elegir</button>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl p-6">
+                        <h3 class="font-bold text-xl">Anual</h3>
+                        <div class="text-3xl font-bold mb-4">S/299</div><button
+                            onclick="openPaymentModal('Anual', 299.00)"
+                            class="w-full bg-slate-800 text-white py-2 rounded-lg">Elegir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="fixed inset-0 z-[60] hidden items-center justify-center modal-backdrop p-4">
+        <div
+            class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-gray-700">
+            <div class="bg-gray-50 dark:bg-gray-800 p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold">Pasarela de Pago</h3><button onclick="closePaymentModal()">✕</button>
+            </div>
+            <div class="p-6">
+                <div class="mb-6 text-center">
+                    <h2 id="payment-plan-name" class="text-2xl font-bold text-brand-600">Plan</h2>
+                    <div id="payment-amount" class="text-3xl font-black">S/0.00</div>
+                </div>
+                <div class="flex mb-4 border-b"><button onclick="switchPaymentMethod('yape')" id="tab-yape"
+                        class="flex-1 py-2 font-bold border-b-2 border-yape text-yape">Yape/Plin</button><button
+                        onclick="switchPaymentMethod('card')" id="tab-card"
+                        class="flex-1 py-2 text-gray-500">Tarjeta</button></div>
+                <div id="method-yape">
+                    <div class="text-center space-y-4">
+                        <div class="mx-auto w-48 h-48 bg-white p-2 border rounded flex items-center justify-center"><img
+                                src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YapeNewsAI" alt="QR">
+                        </div>
+                        <p class="text-xs text-gray-400">Escanea para pagar</p>
+                    </div>
+                </div>
+                <div id="method-card" class="hidden">
+                    <p class="text-center text-gray-500 py-4">Ingresa los datos de tu tarjeta...</p>
+                </div>
+                <button onclick="processPayment()"
+                    class="mt-6 w-full bg-gray-900 dark:bg-white dark:text-black text-white font-bold py-3 rounded-xl">Confirmar
+                    Pago</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="processing-modal"
+        class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-white dark:bg-gray-900 p-8 rounded-2xl text-center">
+            <div id="processing-step">
+                <div class="loader mx-auto mb-4"></div>
+                <h3>Procesando...</h3>
+            </div>
+            <div id="success-step" class="hidden">
+                <div class="text-4xl mb-2">✅</div>
+                <h3>¡Pago Exitoso!</h3><button onclick="finishPaymentFlow()"
+                    class="mt-4 bg-green-500 text-white px-4 py-2 rounded">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth-section" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop p-4">
+        <div
+            class="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md p-8 border border-slate-200 dark:border-gray-700">
+            <h2 class="text-2xl font-bold mb-6 text-center dark:text-white">Acceso</h2>
+            <form id="login-form" class="space-y-4"><input type="email" id="login-email" placeholder="Email"
+                    class="w-full p-2 border rounded"><input type="password" id="login-password"
+                    placeholder="Contraseña" class="w-full p-2 border rounded"><button type="submit"
+                    class="w-full bg-brand-600 text-white font-bold py-3 rounded">Ingresar</button></form>
+            <form id="register-form" class="space-y-4 hidden"><input type="email" id="register-email"
+                    placeholder="Email" class="w-full p-2 border rounded"><input type="password" id="register-password"
+                    placeholder="Contraseña" class="w-full p-2 border rounded"><button type="submit"
+                    class="w-full bg-neon-400 text-black font-bold py-3 rounded">Crear Cuenta</button></form>
+            <div class="text-center mt-4 text-sm space-x-4"><button id="switch-to-register"
+                    class="text-brand-600 font-bold">Crear cuenta</button><button id="switch-to-login"
+                    class="text-brand-600 font-bold hidden">Login</button><button id="close-auth-btn"
+                    class="text-gray-500">Cerrar</button></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, query, getDocs, orderBy, limit, startAfter, getCountFromServer, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwGMwG0xLKigUfBDrclpiO3NuedoyQvvI",
+            authDomain: "noticias-c704d.firebaseapp.com",
+            projectId: "noticias-c704d",
+            storageBucket: "noticias-c704d.firebasestorage.app",
+            messagingSenderId: "208977360836",
+            appId: "1:208977360836:web:a8e2501cb7b07d04c7d691"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Variables globales
+        let allNews = [];
+        let filteredNews = [];
+        let lastVisible = null;
+        let pageStack = [];
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 100;
+        let totalDocsCount = 0;
+
+        const newsGrid = document.getElementById('news-grid');
+        const loadingMessage = document.getElementById('loading-message');
+        const searchInput = document.getElementById('search-input');
+        const filterCategoria = document.getElementById('filter-categoria');
+        const filterPais = document.getElementById('filter-pais');
+        const filterPortal = document.getElementById('filter-portal');
+        const applyFiltersBtn = document.getElementById('apply-filters-btn');
+        const resetFiltersBtn = document.getElementById('reset-filters-btn');
+
+        // Configuración de mapeo
+        const PORTAL_CONFIG = {
+            "BBC Home": { cat: "General", fuente: "BBC" },
+            "BBC News": { cat: "Actualidad", fuente: "BBC" },
+            "BBC Sport": { cat: "Deportes", fuente: "BBC" },
+            "BBC Business": { cat: "Economía", fuente: "BBC" },
+            "BBC Innovation": { cat: "Tecnología", fuente: "BBC" },
+            "BBC Culture": { cat: "Cultura", fuente: "BBC" },
+            "BBC Arts": { cat: "Arte", fuente: "BBC" },
+            "BBC Travel": { cat: "Viajes", fuente: "BBC" },
+            "BBC Earth": { cat: "Ciencia", fuente: "BBC" },
+            "Clarin": { cat: "General", fuente: "Clarín" },
+            "Clarin ultimo": { cat: "Última Hora", fuente: "Clarín" },
+            "Clarin politica": { cat: "Política", fuente: "Clarín" },
+            "Clarin economia": { cat: "Economía", fuente: "Clarín" },
+            "Yahoo Noticias": { cat: "General", fuente: "Yahoo" },
+            "El Mundo": { cat: "General", fuente: "El Mundo" },
+            "Infobae España": { cat: "Internacional", fuente: "Infobae" },
+            "Infobae México": { cat: "Internacional", fuente: "Infobae" },
+            "Infobae Perú": { cat: "Nacional", fuente: "Infobae" }
+        };
+
+        function normalizarNoticia(doc) {
+            const data = doc.data();
+            const rawFuente = data.fuente;
+
+            let categoriaFinal = data.categoria || "General";
+            let fuenteFinal = rawFuente;
+
+            if (PORTAL_CONFIG[rawFuente]) {
+                categoriaFinal = PORTAL_CONFIG[rawFuente].cat;
+                fuenteFinal = PORTAL_CONFIG[rawFuente].fuente;
+            }
+
+            return {
+                id: doc.id,
+                ...data,
+                categoria: categoriaFinal,
+                fuente: fuenteFinal,
+                fuenteOriginal: rawFuente
+            };
+        }
+
+        async function fetchTotalCount() {
+            try {
+                const coll = collection(db, "noticias");
+                const snapshot = await getCountFromServer(coll);
+                totalDocsCount = snapshot.data().count;
+                document.getElementById('global-counter').textContent = `${totalDocsCount} noticias`;
+                document.getElementById('total-news-count').textContent = totalDocsCount;
+            } catch (e) {
+                console.error("Error contando:", e);
+            }
+        }
+
+        function populateFilters(newsItems) {
+            const fuentes = [...new Set(newsItems.map(n => n.fuente).filter(Boolean))].sort();
+            const categorias = [...new Set(newsItems.map(n => n.categoria).filter(Boolean))].sort();
+            const paises = [...new Set(newsItems.map(n => n.pais).filter(Boolean))].sort();
+
+            filterPortal.innerHTML = '<option value="">Todas las fuentes</option>';
+            fuentes.forEach(f => {
+                filterPortal.innerHTML += `<option value="${f}">${f}</option>`;
+            });
+
+            filterCategoria.innerHTML = '<option value="">Todas las categorías</option>';
+            categorias.forEach(c => {
+                filterCategoria.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+
+            filterPais.innerHTML = '<option value="">Todos los países</option>';
+            paises.forEach(p => {
+                filterPais.innerHTML += `<option value="${p}">${p}</option>`;
+            });
+
+            console.log(`✅ Filtros poblados: ${fuentes.length} fuentes, ${categorias.length} categorías, ${paises.length} países`);
+        }
+
+        async function loadFiltersAll() {
+            const coll = collection(db, "noticias");
+            const q = query(coll); // trae todos los docs
+
+            const snapshot = await getDocs(q);
+
+            const allItems = snapshot.docs.map(d => normalizarNoticia(d));
+
+            populateFilters(allItems);
+        }
+
+
+        function applyFilters() {
+            const categoria = filterCategoria.value;
+            const pais = filterPais.value;
+            const fuente = filterPortal.value;
+            const searchTerm = searchInput.value.toLowerCase();
+
+            filteredNews = allNews.filter(n => {
+                return (!categoria || n.categoria === categoria) &&
+                    (!pais || n.pais === pais) &&
+                    (!fuente || n.fuente === fuente) &&
+                    (
+                        (n.titulo || '').toLowerCase().includes(searchTerm) ||
+                        (n.resumen || '').toLowerCase().includes(searchTerm)
+                    );
+            });
+
+            currentPage = 1;
+            updatePaginationLocal();
+            renderNews(getNewsPage(currentPage));
+        }
+
+
+        function resetFilters() {
+            filterCategoria.value = '';
+            filterPais.value = '';
+            filterPortal.value = '';
+            searchInput.value = '';
+            filteredNews = [...allNews];
+            document.getElementById('global-counter').textContent = `${allNews.length} noticias`;
+            renderNews(filteredNews);
+        }
+
+        async function loadNews(direction = 'init') {
+            loadingMessage.classList.remove('hidden');
+            newsGrid.innerHTML = '';
+
+            try {
+                let q;
+                const coll = collection(db, "noticias");
+                const baseConstraint = orderBy("fecha_subida", "desc");
+
+                if (direction === 'init') {
+                    q = query(coll, baseConstraint, limit(ITEMS_PER_PAGE));
+                    pageStack = [];
+                    currentPage = 1;
+                } else if (direction === 'next' && lastVisible) {
+                    pageStack.push(lastVisible);
+                    q = query(coll, baseConstraint, startAfter(lastVisible), limit(ITEMS_PER_PAGE));
+                    currentPage++;
+                } else if (direction === 'prev' && pageStack.length > 0) {
+                    const prevStart = pageStack.pop();
+
+                    if (pageStack.length === 0) {
+                        q = query(coll, baseConstraint, limit(ITEMS_PER_PAGE));
+                    } else {
+                        const parentDoc = pageStack[pageStack.length - 1];
+                        q = query(coll, baseConstraint, startAfter(parentDoc), limit(ITEMS_PER_PAGE));
+                    }
+                    currentPage--;
+                }
+
+                const snapshot = await getDocs(q);
+
+                if (!snapshot.empty) {
+                    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+                    allNews = snapshot.docs.map(doc => normalizarNoticia(doc));
+                    filteredNews = [...allNews];
+                    populateFilters(allNews);
+                    renderNews(filteredNews);
+                } else {
+                    newsGrid.innerHTML = '<p class="text-center col-span-3">No hay más noticias.</p>';
+                }
+
+                updatePaginationUI(snapshot.empty);
+
+            } catch (e) {
+                console.error(e);
+                newsGrid.innerHTML = '<p class="text-red-500">Error cargando noticias.</p>';
+            }
+            loadingMessage.classList.add('hidden');
+        }
+
+        async function loadAllNews() {
+            loadingMessage.classList.remove('hidden');
+            newsGrid.innerHTML = '';
+
+            try {
+                const coll = collection(db, "noticias");
+                const q = query(coll, orderBy("fecha_subida", "desc"));
+
+                const snapshot = await getDocs(q);
+
+                allNews = snapshot.docs.map(doc => normalizarNoticia(doc));
+                filteredNews = [...allNews];
+
+                console.log("Noticias cargadas:", allNews.length);
+
+                populateFilters(allNews);
+                updatePaginationLocal();
+                renderNews(getNewsPage(currentPage));
+
+                document.getElementById("global-counter").textContent = `${allNews.length} noticias`;
+
+            } catch (e) {
+                console.error("Error:", e);
+                newsGrid.innerHTML = "<p>Error cargando noticias.</p>";
+            }
+
+            loadingMessage.classList.add('hidden');
+        }
+
+        function getNewsPage(page) {
+            const start = (page - 1) * ITEMS_PER_PAGE;
+            return filteredNews.slice(start, start + ITEMS_PER_PAGE);
+        }
+
+        function updatePaginationLocal() {
+            const maxPage = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
+
+            document.getElementById("pagination-controls").classList.remove("hidden");
+            document.getElementById("page-indicator").textContent = `Página ${currentPage}`;
+
+            document.getElementById("prev-page-btn").disabled = currentPage === 1;
+            document.getElementById("next-page-btn").disabled = currentPage >= maxPage;
+        }
+
+        window.changePage = (dir) => {
+            if (dir === "next") currentPage++;
+            if (dir === "prev") currentPage--;
+
+            renderNews(getNewsPage(currentPage));
+            updatePaginationLocal();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        function updatePaginationUI(isEmpty) {
+            document.getElementById('pagination-controls').classList.remove('hidden');
+            document.getElementById('page-indicator').textContent = `Página ${currentPage}`;
+            document.getElementById('prev-page-btn').disabled = (currentPage === 1);
+            document.getElementById('next-page-btn').disabled = isEmpty || allNews.length < ITEMS_PER_PAGE;
+        }
+
+        window.changePage = (dir) => {
+            loadNews(dir);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        function renderNews(newsItems) {
+            if (newsItems.length === 0) {
+                newsGrid.innerHTML = '<p class="col-span-3 text-center py-10">Sin resultados.</p>';
+                return;
+            }
+            let html = '';
+            newsItems.forEach(n => {
+                const date = n.fecha_publicacion?.toDate?.() || n.fecha_subida?.toDate?.() || new Date();
+                const formatted = date.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' });
+
+                html += `
+                    <article class="flex flex-col bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-all h-full group">
+                        <div class="h-48 overflow-hidden relative bg-gray-100">
+                            ${n.categoria ? `<span class="absolute top-2 left-2 bg-brand-600 text-white text-[10px] px-2 py-1 rounded uppercase font-bold">${n.categoria}</span>` : ''}
+                            ${n.imagen ? `<img src="${n.imagen}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.style.display='none'">` : '<div class="flex items-center justify-center h-full text-gray-400">Sin imagen</div>'}
+                        </div>
+                        <div class="p-4 flex flex-col flex-1">
+                            <div class="flex justify-between text-xs text-gray-500 mb-2">
+                                <span class="font-bold text-brand-700 dark:text-neon-400">${n.fuente || 'Fuente'}</span>
+                                <span>${formatted}</span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 dark:text-white leading-tight line-clamp-2">${n.titulo}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">${n.resumen || ''}</p>
+                            <div class="mt-auto pt-3 border-t border-slate-100 dark:border-gray-800 flex justify-between items-center">
+                                <span class="text-xs text-gray-400">${n.pais || 'Global'}</span>
+                                <a href="${n.enlace}" target="_blank" class="text-sm font-bold text-brand-600 hover:underline">Leer más</a>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            });
+            newsGrid.innerHTML = html;
+        }
+
+        searchInput.addEventListener('keyup', applyFilters);
+        applyFiltersBtn.addEventListener('click', applyFilters);
+        resetFiltersBtn.addEventListener('click', resetFilters);
+
+        function switchVisualPlan(plan) {
+            const body = document.body;
+            if (plan === 'premium') {
+                body.classList.remove('plan-free');
+                body.classList.add('plan-premium');
+                document.documentElement.classList.add('dark');
+            } else {
+                body.classList.remove('plan-premium');
+                body.classList.add('plan-free');
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        window.toggleUserDropdown = (e) => {
+            e.stopPropagation();
+            const menu = document.getElementById('user-dropdown-menu');
+            menu.classList.toggle('hidden');
+        };
+
+        window.closeDropdowns = (e) => {
+            const menu = document.getElementById('user-dropdown-menu');
+            if (menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+            }
+        };
+
+        function updateUIForUser(user, userData) {
+            const authActions = document.getElementById('auth-actions');
+            authActions.innerHTML = '';
+
+            if (user) {
+                const isPremium = userData?.is_premium || false;
+                switchVisualPlan(isPremium ? 'premium' : 'free');
+
+                authActions.innerHTML = `
+                    <div class="relative">
+                        <button onclick="toggleUserDropdown(event)" class="flex items-center focus:outline-none">
+                             <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-500 to-neon-400 p-[2px]">
+                                 <img src="https://ui-avatars.com/api/?name=${user.email}&background=000&color=fff" class="rounded-full w-full h-full">
+                             </div>
+                        </button>
+                        <div id="user-dropdown-menu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-slate-200 dark:border-gray-700 hidden z-50">
+                            <div class="px-4 py-3 border-b border-slate-100 dark:border-gray-700">
+                                <p class="text-sm font-bold text-slate-800 dark:text-white truncate">${user.email}</p>
+                                <p class="text-xs text-slate-500">${isPremium ? 'Plan Premium' : 'Plan Gratuito'}</p>
+                            </div>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700">Mi Perfil</a>
+                            <a href="#" onclick="openPricingModal()" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700">Planes</a>
+                            <div class="border-t border-slate-100 dark:border-gray-700"></div>
+                            <button id="logout-btn" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            } else {
+                switchVisualPlan('free');
+                authActions.innerHTML = `<button onclick="showAuthModal(false)" class="text-sm font-bold text-brand-600 hover:underline">Ingresar</button>`;
+            }
+            fetchTotalCount();
+            loadNews('init');
+        }
+
+        window.openPricingModal = () => {
+            document.getElementById('pricing-modal').classList.remove('hidden');
+            document.getElementById('pricing-modal').classList.add('flex');
+        }
+
+        window.closePricingModal = () => {
+            document.getElementById('pricing-modal').classList.add('hidden');
+            document.getElementById('pricing-modal').classList.remove('flex');
+        }
+
+        window.openPaymentModal = (plan, amount) => {
+            closePricingModal();
+            document.getElementById('payment-plan-name').innerText = plan;
+            document.getElementById('payment-amount').innerText = `S/${amount}`;
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('payment-modal').classList.add('flex');
+            switchPaymentMethod('yape');
+        }
+
+        window.closePaymentModal = () => {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('payment-modal').classList.remove('flex');
+        }
+
+        window.switchPaymentMethod = (m) => {
+            ['yape', 'card'].forEach(x => document.getElementById(`method-${x}`).classList.add('hidden'));
+            document.getElementById(`method-${m}`).classList.remove('hidden');
+            document.getElementById('tab-yape').className = m == 'yape' ? 'flex-1 py-2 font-bold border-b-2 border-yape text-yape' : 'flex-1 py-2 text-gray-500';
+            document.getElementById('tab-card').className = m == 'card' ? 'flex-1 py-2 font-bold border-b-2 border-gray-800 text-black' : 'flex-1 py-2 text-gray-500';
+        }
+
+        window.processPayment = () => {
+            if (!auth.currentUser) {
+                alert("Inicia sesión primero");
+                return;
+            }
+            closePaymentModal();
+            document.getElementById('processing-modal').classList.remove('hidden');
+            document.getElementById('processing-modal').classList.add('flex');
+            setTimeout(async () => {
+                await setDoc(doc(db, "users", auth.currentUser.uid), { is_premium: true }, { merge: true });
+                document.getElementById('processing-step').classList.add('hidden');
+                document.getElementById('success-step').classList.remove('hidden');
+                const userData = await getDoc(doc(db, "users", auth.currentUser.uid));
+                updateUIForUser(auth.currentUser, userData.data());
+            }, 3000);
+        }
+
+        window.finishPaymentFlow = () => {
+            window.location.reload();
+        }
+
+        window.showAuthModal = (reg) => {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('auth-section').classList.add('flex');
+            document.getElementById(reg ? 'login-form' : 'register-form').classList.add('hidden');
+            document.getElementById(reg ? 'register-form' : 'login-form').classList.remove('hidden');
+            document.getElementById('switch-to-login').classList.toggle('hidden', !reg);
+            document.getElementById('switch-to-register').classList.toggle('hidden', reg);
+        }
+
+        document.getElementById('close-auth-btn').addEventListener('click', () => {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('flex');
+        });
+
+        document.getElementById('switch-to-register').addEventListener('click', () => showAuthModal(true));
+        document.getElementById('switch-to-login').addEventListener('click', () => showAuthModal(false));
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
+                document.getElementById('auth-section').classList.add('hidden');
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const c = await createUserWithEmailAndPassword(auth, document.getElementById('register-email').value, document.getElementById('register-password').value);
+                await setDoc(doc(db, "users", c.user.uid), { email: c.user.email, is_premium: false });
+                document.getElementById('auth-section').classList.add('hidden');
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const s = await getDoc(doc(db, "users", user.uid));
+                updateUIForUser(user, s.exists() ? s.data() : null);
+            } else {
+                updateUIForUser(null, null);
+            }
+        });
+    </script>
+</body>
+
+</html>
